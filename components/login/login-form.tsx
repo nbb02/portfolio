@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useSearchParams } from "next/navigation"
+import Error from "./errors"
+import {
+  signInWithFacebook,
+  signInWithGithub,
+  signInWithGoogle,
+} from "@/app/login/actions"
 
 type LoginFormProps = {
   login: (formData: FormData) => Promise<void>
@@ -17,9 +22,6 @@ export function LoginForm({
   signup,
   ...props
 }: React.ComponentProps<"div"> & LoginFormProps) {
-  const searchParams = useSearchParams()
-  const error = searchParams.get("error")
-
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden">
@@ -29,14 +31,10 @@ export function LoginForm({
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
                 <p className="text-balance text-muted-foreground">
-                  Login to your Acme Inc account
+                  Login to your account
                 </p>
               </div>
-              {error === "invalid_credentials" && (
-                <div className="p-3 text-red-500 bg-red-100 rounded-[0.5em] border-red-500 border-solid border-2 text-center">
-                  Invalid credentials
-                </div>
-              )}
+              <Error />
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -68,7 +66,12 @@ export function LoginForm({
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-4">
-                <Button variant="outline" className="w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={signInWithGithub}
+                >
                   <svg
                     className="scale-[1.5]"
                     xmlns="http://www.w3.org/2000/svg"
@@ -82,7 +85,12 @@ export function LoginForm({
                   </svg>
                   <span className="sr-only">Login with Github</span>
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  type="button"
+                  onClick={signInWithGoogle}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -96,7 +104,12 @@ export function LoginForm({
                   </svg>
                   <span className="sr-only">Login with Google</span>
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  type="button"
+                  onClick={signInWithFacebook}
+                >
                   <svg
                     className="scale-[1.5]"
                     xmlns="http://www.w3.org/2000/svg"
