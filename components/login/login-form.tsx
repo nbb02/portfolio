@@ -4,29 +4,37 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import Error from "./errors"
 import {
+  login,
   signInWithFacebook,
   signInWithGithub,
   signInWithGoogle,
+  signup,
 } from "@/app/login/actions"
-
-type LoginFormProps = {
-  login: (formData: FormData) => Promise<void>
-  signup: (formData: FormData) => Promise<void>
-}
+import { useActionState, useState } from "react"
 
 export function LoginForm({
   className,
-  login,
-  signup,
   ...props
-}: React.ComponentProps<"div"> & LoginFormProps) {
+}: React.ComponentProps<"div">) {
+  const [error, action, pending] = useActionState(login, null)
+
+  const [isSignUp, setIsSignup] = useState(false)
+
+  //signup
+  const [imgPreview, setImgPreview] = useState<string | null>(null)
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+        <CardContent className="grid p-0 md:grid-cols-2 h-[35em] relative">
+          <form
+            className={`p-6 md:p-8 transition-transform duration-1000 bg-white ${
+              isSignUp
+                ? "absolute z-0 translate-x-[100%] w-[50%] h-full"
+                : "z-10"
+            }`}
+          >
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -34,7 +42,16 @@ export function LoginForm({
                   Login to your account
                 </p>
               </div>
-              <Error />
+
+              {pending ? (
+                "Loading..."
+              ) : error ? (
+                <div className="p-2 text-red-500 bg-red-100 rounded-[0.5em] border-red-500 border-solid border-2 text-center">
+                  {error}
+                </div>
+              ) : (
+                ""
+              )}
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -57,7 +74,7 @@ export function LoginForm({
                 </div>
                 <Input id="password" name="password" type="password" required />
               </div>
-              <Button type="submit" className="w-full" formAction={login}>
+              <Button type="submit" className="w-full" formAction={action}>
                 Login
               </Button>
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
@@ -128,14 +145,110 @@ export function LoginForm({
                 Don&apos;t have an account?{" "}
                 <button
                   className="underline underline-offset-4"
-                  formAction={signup}
+                  // formAction={signup}
+                  type="button"
+                  onClick={() => setIsSignup(true)}
                 >
                   Sign up
                 </button>
               </div>
             </div>
           </form>
-          <div className="relative hidden bg-muted md:block">
+          <form
+            className={`transition-transform p-5 duration-1000 bg-white overflow-auto ${
+              isSignUp
+                ? "translate-x-[100%] z-1"
+                : "absolute z-0 w-[50%] h-full"
+            }`}
+          >
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col items-center text-center">
+                <h1 className="text-2xl font-bold">Welcome </h1>
+                <p className="text-balance text-muted-foreground">
+                  Sign up for an Account
+                </p>
+              </div>
+              {pending ? (
+                "Loading..."
+              ) : error ? (
+                <div className="p-2 text-red-500 bg-red-100 rounded-[0.5em] border-red-500 border-solid border-2 text-center">
+                  {error}
+                </div>
+              ) : (
+                ""
+              )}
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="full_name">Full Name</Label>
+                <Input id="full_name" name="full_name" type="text" required />
+              </div>
+              <div className="grid gap-2">
+                {imgPreview && (
+                  <img
+                    className="rounded-full object-cover h-20 w-20"
+                    src={imgPreview}
+                  />
+                )}
+                <Label htmlFor="profile_img">Profile Image</Label>
+                <Input
+                  id="profile_img"
+                  name="profile_img"
+                  type="file"
+                  accept="image/*"
+                  required
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) {
+                      const reader = new FileReader()
+                      reader.onloadend = () => {
+                        if (typeof reader.result === "string") {
+                          setImgPreview(reader.result)
+                        }
+                      }
+                      reader.readAsDataURL(file)
+                    } else {
+                      setImgPreview(null)
+                    }
+                  }}
+                />
+              </div>
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label htmlFor="password">Password</Label>
+                </div>
+                <Input id="password" name="password" type="password" required />
+              </div>
+              <Button type="submit" className="w-full" formAction={signup}>
+                Sign Up
+              </Button>
+              <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+                <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                  Already have an account ?
+                </span>
+              </div>
+              <button
+                className="underline underline-offset-4"
+                type="button"
+                onClick={() => setIsSignup(false)}
+              >
+                Log In
+              </button>
+            </div>
+          </form>
+          <div
+            className={`relative hidden bg-muted md:block transition-transform duration-1000 z-20  ${
+              isSignUp && "translate-x-[-100%]"
+            }`}
+          >
             <img
               src="/bg.jpg"
               alt="Image"
@@ -144,10 +257,6 @@ export function LoginForm({
           </div>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </div>
     </div>
   )
 }
