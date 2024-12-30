@@ -1,12 +1,9 @@
-import { LogIn, LogOut } from "lucide-react"
-import { signOut } from "../login/actions"
 import { db } from "@/src"
 import { profiles } from "@/src/db/schema"
 import { createClient } from "@/utils/supabase/server"
-import { redirect } from "next/navigation"
 import Link from "next/link"
 
-export default async function Home() {
+export default async function Page() {
   const all_profiles = await db.select().from(profiles)
 
   const supabase = await createClient()
@@ -17,41 +14,25 @@ export default async function Home() {
   const hasProfile = all_profiles?.find((item) => item.user_id === user?.id)
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen  w-full border-2 border-violet-600 border-solid">
-      <nav className="flex gap-2 p-2 justify-end">
-        {user !== null ? (
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="flex gap-2 text-s font-semibold border-2 border-solid border-violet-500 px-2 py-1 rounded-sm hover:bg-violet-400 hover:text-white"
+    <div className="flex flex-col min-h-screen  w-full">
+      <main className="flex flex-1 flex-col h-full ">
+        <main
+          className="flex-1 flex gap-2 py-2 px-5 flex-wrap content-center 
+      justify-center"
+        >
+          {!hasProfile && user && (
+            <a
+              href="/create-profile"
+              className="w-full flex-none flex justify-center"
             >
-              <LogOut />
-              Log Out
-            </button>
-          </form>
-        ) : (
-          <a href="/login">
-            <button className="flex gap-2 text-s font-semibold border-2 border-solid border-violet-500 px-2 py-1 rounded-sm hover:bg-violet-400 hover:text-white">
-              <LogIn />
-              Log In
-            </button>
-          </a>
-        )}
-      </nav>
-      <main className="flex flex-1 flex-col h-full bg-violet-200">
-        <header className="p-2 flex justify-center">
-          {!hasProfile && (
-            <a href="/create-profile">
               <button
-                className=" border-fuchsia-500 border-2 border-solid p-1 font-bold  hover:bg-violet-400 hover:text-white rounded-lg self-start"
+                className=" border-fuchsia-300 border-2 border-solid p-1 font-bold  hover:bg-violet-300 hover:text-white rounded-lg self-start"
                 disabled={user === null}
               >
-                Create Your Profile {user === null && "Must Be Logged In First"}
+                Create Your Profile
               </button>
             </a>
           )}
-        </header>
-        <main className=" flex-1 flex gap-2 py-2 px-5 flex-wrap content-center bg-fuchsia-200">
           {all_profiles.map((userData) => (
             <UserBox key={userData.id} userData={userData} />
           ))}
@@ -63,17 +44,27 @@ export default async function Home() {
 
 function UserBox({ userData }: { userData: UserData }) {
   return (
-    <div className="min-w-[20em] h-[20em] flex-1 border-blue-400 border-solid border-2 rounded-lg">
-      <img src={userData?.avatar_image ?? ""} alt="" />
+    <div className="relative flex flex-col p-2 items-center max-w-[20em] min-w-[20em] h-[20em] flex-1 border-blue-400 border-solid border-2 rounded-lg">
       <img
-        className="h-[10em] w-[15em] object-cover"
-        src={userData?.cover_photo ?? ""}
+        className="h-[10em] w-full object-cover rounded-sm"
+        src={userData?.cover_photo ?? undefined}
         alt=""
       />
-      <h2>{userData.first_name}</h2>
-      <h3>{userData.last_name}</h3>
+      <img
+        src={userData?.avatar_image ?? undefined}
+        alt=""
+        className="top-24 absolute rounded-full block h-[8em] w-[8em] object-cover bg-white border-white border-2 border-solid"
+      />
+      <p className="pt-16">
+        {userData.first_name} {userData.last_name}
+      </p>
       <p>{userData.role}</p>
-      <Link href={"/" + userData.user_id}>View</Link>
+      <Link
+        href={"/profile/" + userData.user_id}
+        className="border-solid border-2 border-violet-500 rounded-sm hover:bg-violet-400 hover:text-white px-2 text-violet-500 font-bold"
+      >
+        View
+      </Link>
     </div>
   )
 }

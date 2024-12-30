@@ -7,7 +7,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core"
 
-export const profiles = pgTable("profiles", {
+const profiles = pgTable("profiles", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   user_id: uuid().notNull(),
   username: varchar({ length: 255 }),
@@ -24,3 +24,16 @@ export const profiles = pgTable("profiles", {
   city: varchar({ length: 128 }),
   created_at: timestamp().defaultNow().notNull(),
 })
+
+const technologies = pgTable("technologies", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  user_id: integer()
+    .notNull()
+    .references(() => profiles.id, {
+      onDelete: "cascade",
+    }),
+  name: varchar({ length: 255 }).notNull(),
+  img_url: text().notNull(),
+})
+
+export { profiles, technologies }
