@@ -1,5 +1,6 @@
 import {
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -36,4 +37,17 @@ const technologies = pgTable("technologies", {
   img_url: text().notNull(),
 })
 
-export { profiles, technologies }
+const projects = pgTable("projects", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  user_id: integer()
+    .notNull()
+    .references(() => profiles.id, {
+      onDelete: "cascade",
+    }),
+  name: varchar({ length: 255 }).notNull(),
+  description: text().notNull(),
+  url: text(),
+  media: jsonb(),
+})
+
+export { profiles, technologies, projects }

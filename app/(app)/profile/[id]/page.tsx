@@ -1,7 +1,7 @@
 import { db } from "@/src"
 import { profiles, technologies } from "@/src/db/schema"
 import { eq } from "drizzle-orm"
-import Technologies from "./technologies"
+import Portfolio from "./portfolio"
 
 export default async function Page({
   params,
@@ -10,18 +10,17 @@ export default async function Page({
 }) {
   const { id } = await params
 
-  if (!isUuid(id)) {
+  if (!Number(id))
     return (
       <h1>
         Profile Not Found. <a href="/">Go Back to home</a>
       </h1>
     )
-  }
 
   const profile = await db
     .select()
     .from(profiles)
-    .where(eq(profiles.user_id, id))
+    .where(eq(profiles.id, Number(id)))
     .limit(1)
 
   if (!profile)
@@ -31,7 +30,7 @@ export default async function Page({
       </h1>
     )
 
-  const techs = await db
+  const allTechnologies = await db
     .select()
     .from(technologies)
     .where(eq(technologies.user_id, profile[0].id))
@@ -51,7 +50,7 @@ export default async function Page({
   } = profile[0]
 
   return (
-    <div className="p-2">
+    <div className="p-2 relative">
       <header className="flex justify-center">
         <img
           className="w-[50em] h-[20em] max-w-full object-cover"
@@ -73,42 +72,7 @@ export default async function Page({
         </p>
       </main>
       <hr className="my-16" />
-      <Technologies profile_id={profile[0].id} technologies={techs} />
-      <Projects />
+      <Portfolio profile_id={profile[0].id} technologies={allTechnologies} />
     </div>
   )
-}
-
-function Projects() {
-  return (
-    <div>
-      <h1 className="text-center text-2xl p-2">Projects</h1>
-      <main className="flex flex-wrap gap-2 justify-center">
-        <Project />
-        <Project />
-        <Project />
-        <Project />
-      </main>
-    </div>
-  )
-}
-
-function Project() {
-  return (
-    <div className="p-2 border-2 border-solid border-fuchsia-500 rounded-md flex-1 min-w-[20em] max-w-[30em] h-[20em] overflow-auto">
-      <h2>Project Title</h2>
-      <p>Project Description</p>
-      <p>Project Link</p>
-      <div>
-        <img src="https://via.placeholder.com/150" alt="" />
-        <img src="https://via.placeholder.com/150" alt="" />
-      </div>
-    </div>
-  )
-}
-
-const isUuid = (input: string): boolean => {
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-  return uuidRegex.test(input)
 }

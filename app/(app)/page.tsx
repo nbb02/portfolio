@@ -60,7 +60,7 @@ function UserBox({ userData }: { userData: UserData }) {
       </p>
       <p>{userData.role}</p>
       <Link
-        href={"/profile/" + userData.user_id}
+        href={"/profile/" + userData.id}
         className="border-solid border-2 border-violet-500 rounded-sm hover:bg-violet-400 hover:text-white px-2 text-violet-500 font-bold"
       >
         View

@@ -1,6 +1,7 @@
 "use server"
 import { db } from "@/src"
 import { technologies } from "@/src/db/schema"
+import { eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
 type Response = {
@@ -9,10 +10,7 @@ type Response = {
   message?: string
 }
 
-export async function add_technology(
-  previousState: any,
-  formData: FormData
-): Promise<Response> {
+async function add_technology(_: any, formData: FormData): Promise<Response> {
   try {
     const data = {
       user_id: Number(formData.get("user_id")),
@@ -43,3 +41,24 @@ export async function add_technology(
     }
   }
 }
+
+async function deleteTechnology(id: number): Promise<void> {
+  try {
+    await db.delete(technologies).where(eq(technologies.id, id))
+
+    revalidatePath("/profile")
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+async function deleteProject(id: number): Promise<void> {
+  // try {
+  //   await db.delete(projects).where(eq(projects.id, id))
+  //   revalidatePath("/profile")
+  // } catch (error) {
+  //   console.log(error)
+  // }
+}
+
+export { add_technology, deleteTechnology, deleteProject }

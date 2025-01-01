@@ -101,13 +101,3 @@ body {
     @apply bg-primary-foreground;
   }
 }
-
-input {
-  border: 1px solid black;
-  border-radius: 0.25em;
-}
-
-button {
-  border: 1px solid black;
-  border-radius: 0.25em;
-}
