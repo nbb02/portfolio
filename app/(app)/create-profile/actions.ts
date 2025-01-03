@@ -1,4 +1,5 @@
 "use server"
+import { uploadFile } from "@/app/lib/actions"
 import { db } from "@/src"
 import { profiles } from "@/src/db/schema"
 import { createClient } from "@/utils/supabase/server"
@@ -41,28 +42,6 @@ export async function create_profile(_: any, formData: FormData) {
   } catch (error) {
     console.log(error)
   }
-}
-
-async function uploadFile(
-  file: FormDataEntryValue | null,
-  bucket_name: string
-) {
-  if (!file) return
-  const supabase = await createClient()
-
-  const { data, error } = await supabase.storage
-    .from(bucket_name)
-    .upload(new Date().toString(), file)
-
-  if (error) {
-    throw error
-  }
-
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from(bucket_name).getPublicUrl(data.path)
-
-  return publicUrl
 }
 
 type data = {
