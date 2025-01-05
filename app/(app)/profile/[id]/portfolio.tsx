@@ -7,6 +7,7 @@ import Link from "next/link"
 export default function Portfolio({
   profile_id,
   technologies,
+  projects,
 }: PortfolioProps) {
   const [editing, setEditing] = useState(false)
 
@@ -33,8 +34,9 @@ export default function Portfolio({
         profile_id={profile_id}
         technologies={technologies}
         editing={editing}
+        projects={projects}
       />
-      <Projects editing={editing} id={profile_id} />
+      <Projects editing={editing} id={profile_id} projects={projects} />
     </div>
   )
 }
@@ -133,16 +135,28 @@ function TechForm({
   )
 }
 
-function Projects({ editing, id }: { editing: boolean; id: number }) {
+function Projects({
+  editing,
+  id,
+  projects,
+}: {
+  editing: boolean
+  id: number
+  projects: Projects[]
+}) {
   const project_id = 0
   return (
     <div>
       <h1 className="text-center text-2xl p-2">Projects</h1>
       <main className="flex flex-wrap gap-2 justify-center">
-        <Project editing={editing} project_id={project_id} />
-        <Project editing={editing} project_id={project_id} />
-        <Project editing={editing} project_id={project_id} />
-        <Project editing={editing} project_id={project_id} />
+        {projects.map((project) => (
+          <Project
+            key={project.id}
+            editing={editing}
+            project_id={project.id}
+            project={project}
+          />
+        ))}
         {editing && (
           <div className="p-2 border-2 border-solid border-fuchsia-500 rounded-md flex-1 min-w-[20em] max-w-[30em] h-[20em] overflow-auto flex justify-center items-center">
             <Link href={"/profile/" + id + "/add-project"}>Add Project</Link>
@@ -156,12 +170,15 @@ function Projects({ editing, id }: { editing: boolean; id: number }) {
 function Project({
   editing,
   project_id,
+  project,
 }: {
   editing: boolean
   project_id: number
+  project: Projects
 }) {
   const deleteProjectWithId = deleteProject.bind(null, project_id)
 
+  const media = project.media as MediaItem[]
   return (
     <div className="relative p-2 border-2 border-solid border-fuchsia-500 rounded-md flex-1 min-w-[20em] max-w-[30em] h-[20em] overflow-auto">
       {editing && (
@@ -174,12 +191,22 @@ function Project({
           </button>
         </form>
       )}
-      <h2>Project Title</h2>
-      <p>Project Description</p>
-      <p>Project Link</p>
+      <h2>Project Title : {project.name}</h2>
+      <p>Project Description : {project.description}</p>
+      <p>Project Link : {project.url}</p>
       <div>
-        <img src="https://via.placeholder.com/150" alt="" />
-        <img src="https://via.placeholder.com/150" alt="" />
+        {media.map((item, index) =>
+          item?.type?.includes("image") ? (
+            <img
+              key={index}
+              src={item.url}
+              alt={item.description}
+              className="h-[5em]"
+            />
+          ) : (
+            <video key={index} src={item.url} controls className="h-[5em]" />
+          )
+        )}
       </div>
     </div>
   )
@@ -192,6 +219,7 @@ type TechProps = {
 type PortfolioProps = {
   profile_id: number
   technologies: Technologies[]
+  projects: Projects[]
 }
 
 type Technologies = {
@@ -199,4 +227,19 @@ type Technologies = {
   name: string
   user_id: number
   img_url: string
+}
+
+type Projects = {
+  id: number
+  user_id: number
+  name: string
+  description: string
+  url: string
+  media: unknown
+}
+
+type MediaItem = {
+  description: string
+  url: string
+  type: string
 }

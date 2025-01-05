@@ -1,5 +1,5 @@
 import { db } from "@/src"
-import { profiles, technologies } from "@/src/db/schema"
+import { profiles, projects, technologies } from "@/src/db/schema"
 import { eq } from "drizzle-orm"
 import Portfolio from "./portfolio"
 
@@ -49,6 +49,11 @@ export default async function Page({
     city,
   } = profile[0]
 
+  const allProjects = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.user_id, profile[0].id))
+
   return (
     <div className="p-2 relative">
       <header className="flex justify-center">
@@ -72,7 +77,11 @@ export default async function Page({
         </p>
       </main>
       <hr className="my-16" />
-      <Portfolio profile_id={profile[0].id} technologies={allTechnologies} />
+      <Portfolio
+        profile_id={profile[0].id}
+        technologies={allTechnologies}
+        projects={allProjects}
+      />
     </div>
   )
 }

@@ -1,15 +1,11 @@
 import { createClient } from "@/utils/supabase/server"
 
-async function uploadFile(
-  file: FormDataEntryValue | null,
-  bucket_name: string
-) {
-  if (!file) return
+async function uploadFile(file: any, bucket_name: string) {
   const supabase = await createClient()
 
   const { data, error } = await supabase.storage
     .from(bucket_name)
-    .upload(new Date().toString(), file)
+    .upload(new Date().getTime() + file.name, file)
 
   if (error) {
     throw error

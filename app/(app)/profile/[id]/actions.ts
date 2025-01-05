@@ -1,6 +1,7 @@
 "use server"
 import { db } from "@/src"
-import { technologies } from "@/src/db/schema"
+import { projects, technologies } from "@/src/db/schema"
+import { createClient } from "@/utils/supabase/server"
 import { eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
@@ -53,12 +54,35 @@ async function deleteTechnology(id: number): Promise<void> {
 }
 
 async function deleteProject(id: number): Promise<void> {
-  // try {
-  //   await db.delete(projects).where(eq(projects.id, id))
-  //   revalidatePath("/profile")
-  // } catch (error) {
-  //   console.log(error)
-  // }
+  try {
+    const project = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, id))
+      .limit(1)
+
+    const media = project[0].media as MediaItem[]
+
+    const mediaPaths = media.map((m) => {
+      const parts = m.url.split("/")
+      return decodeURIComponent(parts[parts.length - 1])
+    })
+
+    const supabase = await createClient()
+    await supabase.storage.from("projects").remove(mediaPaths)
+
+    await db.delete(projects).where(eq(projects.id, id))
+
+    revalidatePath("/profile")
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 export { add_technology, deleteTechnology, deleteProject }
+
+type MediaItem = {
+  description: string
+  url: string
+  type: string
+}

@@ -46,7 +46,7 @@ const projects = pgTable("projects", {
     }),
   name: varchar({ length: 255 }).notNull(),
   description: text().notNull(),
-  url: text(),
+  url: text().notNull(),
   media: jsonb(),
 })
 
