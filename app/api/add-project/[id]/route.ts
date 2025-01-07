@@ -32,8 +32,6 @@ export async function POST(
 
     for (const media of mediaFiles) {
       if (media?.file) {
-        console.log("file")
-
         const file = media.file
         const fileUrl = await uploadFile(file, "projects")
 

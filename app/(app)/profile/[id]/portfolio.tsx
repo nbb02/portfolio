@@ -1,8 +1,9 @@
 "use client"
 import React, { useActionState, useEffect, useState } from "react"
 import { add_technology, deleteProject, deleteTechnology } from "./actions"
-import { CircleX } from "lucide-react"
+import { ArrowUpRight, CircleX } from "lucide-react"
 import Link from "next/link"
+import WithToolTip from "@/components/with-tooltip"
 
 export default function Portfolio({
   profile_id,
@@ -15,16 +16,18 @@ export default function Portfolio({
     <div>
       {editing ? (
         <button
-          className="fixed top-1 right-1 border-2 border-solid border-orange-500 px-2 rounded-md"
+          className="text-lg fixed top-1 right-1 overflow-hidden border-2 border-solid border-orange-500 px-2 rounded-md"
           onClick={() => setEditing(false)}
         >
+          <span className="bg-blur"></span>
           Done Editing
         </button>
       ) : (
         <button
-          className="absolute top-1 right-1 border-2 border-solid border-emerald-500 px-2 rounded-md"
+          className="text-lg fixed top-1 overflow-hidden right-1 border-2 border-solid border-emerald-500 px-2 rounded-md"
           onClick={() => setEditing(true)}
         >
+          <span className="bg-blur"></span>
           Edit
         </button>
       )}
@@ -51,7 +54,7 @@ function Techs({
   return (
     <div className="py-5">
       <h1 className="text-center text-2xl">Technologies</h1>
-      <main className="flex flex-wrap justify-center gap-10 ">
+      <main className="flex flex-wrap justify-center gap-2">
         {technologies?.map((item) => (
           <Technology
             id={item.id}
@@ -84,20 +87,28 @@ function Technology({
   const deleteTechnologyWithId = deleteTechnology.bind(null, id)
 
   return (
-    <div className="relative p-2">
-      <p>{name}</p>
-      <img src={img_url == "" ? "/placeholder" : img_url} alt={name} />
-      {editing && (
-        <form
-          action={deleteTechnologyWithId}
-          className="border-none text-red-500 absolute top-1 right-1"
-        >
-          <button className="border-none" type="submit">
-            <CircleX />
-          </button>
-        </form>
-      )}
-    </div>
+    <WithToolTip
+      text={name}
+      children={
+        <div className="max-w-[5em] relative p-2 h-[5em] w-[5em] border-2 border-solid rounded-sm overflow-hidden">
+          <img
+            className="h-full w-full object-contain"
+            src={img_url == "" ? "/placeholder" : img_url}
+            alt={name}
+          />
+          {editing && (
+            <form
+              action={deleteTechnologyWithId}
+              className="border-none text-red-500 absolute top-1 right-1"
+            >
+              <button className="border-none" type="submit">
+                <CircleX />
+              </button>
+            </form>
+          )}
+        </div>
+      }
+    />
   )
 }
 
@@ -144,9 +155,8 @@ function Projects({
   id: number
   projects: Projects[]
 }) {
-  const project_id = 0
   return (
-    <div>
+    <div className="">
       <h1 className="text-center text-2xl p-2">Projects</h1>
       <main className="flex flex-wrap gap-2 justify-center">
         {projects.map((project) => (
@@ -180,7 +190,7 @@ function Project({
 
   const media = project.media as MediaItem[]
   return (
-    <div className="relative p-2 border-2 border-solid border-fuchsia-500 rounded-md flex-1 min-w-[20em] max-w-[30em] h-[20em] overflow-auto">
+    <div className="flex flex-row relative p-2 border-2 border-solid border-fuchsia-500 rounded-xl flex-1 min-w-[25em] max-w-[100%] h-[20em] overflow-auto">
       {editing && (
         <form
           action={deleteProjectWithId}
@@ -191,20 +201,34 @@ function Project({
           </button>
         </form>
       )}
-      <h2>Project Title : {project.name}</h2>
-      <p>Project Description : {project.description}</p>
-      <p>Project Link : {project.url}</p>
-      <div>
+      <div className="flex flex-1 flex-col gap-5 justify-center">
+        <h2 className="text-3xl">{project.name}</h2>
+        <p>{project.description}</p>
+        <a href={project.url}>
+          <button
+            className="text-sm flex p-2 border-2 border-solid border-white bg-orange-400 rounded-lg text-white
+          hover:bg-white hover:text-orange-500 hover:border-orange-500"
+          >
+            Visit @ {project.url} <ArrowUpRight />
+          </button>
+        </a>
+      </div>
+      <div className="flex-1 p-2 ">
         {media.map((item, index) =>
           item?.type?.includes("image") ? (
             <img
               key={index}
               src={item.url}
               alt={item.description}
-              className="h-[5em]"
+              className="h-full w-full object-cover rounded-md"
             />
           ) : (
-            <video key={index} src={item.url} controls className="h-[5em]" />
+            <video
+              key={index}
+              src={item.url}
+              controls
+              className="h-full w-full object-cover rounded-md"
+            />
           )
         )}
       </div>
