@@ -1,60 +1,133 @@
 "use client"
 import React, { useActionState, useEffect, useState } from "react"
-import { add_technology, deleteProject, deleteTechnology } from "./actions"
-import { ArrowUpRight, CircleX } from "lucide-react"
+import { add_technology, changeAvatar, deleteTechnology } from "./actions"
+import { type InferSelectModel } from "drizzle-orm"
+import { CircleX, Edit } from "lucide-react"
 import Link from "next/link"
-import WithToolTip from "@/components/with-tooltip"
+import Project from "@/components/project"
+import { profiles } from "@/src/db/schema"
 
 export default function Portfolio({
   profile_id,
   technologies,
   projects,
+  profile,
 }: PortfolioProps) {
   const [editing, setEditing] = useState(false)
 
-  return (
-    <div>
-      {editing ? (
-        <button
-          className="text-lg fixed top-1 right-1 overflow-hidden border-2 border-solid border-orange-500 px-2 rounded-md"
-          onClick={() => setEditing(false)}
-        >
-          <span className="bg-blur"></span>
-          Done Editing
-        </button>
-      ) : (
-        <button
-          className="text-lg fixed top-1 overflow-hidden right-1 border-2 border-solid border-emerald-500 px-2 rounded-md"
-          onClick={() => setEditing(true)}
-        >
-          <span className="bg-blur"></span>
-          Edit
-        </button>
-      )}
+  const {
+    id,
+    first_name,
+    middle_name,
+    last_name,
+    cover_photo,
+    avatar_image,
+    role,
+    email,
+    about,
+    country,
+    province,
+    city,
+  } = profile
 
-      <h1>Portfolio</h1>
-      <Techs
-        profile_id={profile_id}
-        technologies={technologies}
-        editing={editing}
-        projects={projects}
-      />
-      <Projects editing={editing} id={profile_id} projects={projects} />
+  return (
+    <div className="p-2 relative">
+      <header className="relative flex justify-center">
+        <div className="relative w-full h-[20em] overflow-hidden">
+          <img
+            className="w-full h-full object-cover cover-photo"
+            src={cover_photo ?? "/placeholder"}
+            alt=""
+          />
+          <button className="absolute bottom-1 right-1 bg-white px-2 rounded-lg py-1 border-2 border-solid border-green-500 text-green-500 font-bold z-50 text-sm hover:bg-green-500 hover:text-white">
+            Change cover Photo
+          </button>
+        </div>
+        <div className="block absolute top-[60%] left-1/2 -translate-x-1/2 h-[10em] w-[10em] bg-white border-solid border-2 border-black rounded-full mx-auto overflow-hidden">
+          <img
+            className="w-full h-full object-cover"
+            src={avatar_image ?? "/placeholder"}
+            alt="avatar"
+          />
+          <form
+            action={changeAvatar}
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-white px-2 rounded-lg py-1 border-t-2 border-solid border-green-500 text-green-500 font-bold z-50 text-sm hover:bg-green-500 hover:text-white w-full"
+          >
+            <label className="text-center block">
+              Change
+              <input
+                type="file"
+                name="avatar_image"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    e.target.form?.requestSubmit()
+                  }
+                }}
+              />
+            </label>
+            <input type="hidden" name="profile_id" value={id} />
+          </form>
+        </div>
+      </header>
+      <main className="mt-10 px-10">
+        <p className="text-4xl font-bold">
+          {last_name}, {first_name} {middle_name}
+        </p>
+        <p className="text-lg">{email}</p>
+        <p className="text-lg">{role}</p>
+        <p className="text-lg">{about}</p>
+        <p className="text-lg">
+          {city}, {province}, {country}
+        </p>
+      </main>
+      <hr className="my-10 w-[90%] mx-auto" />
+      <div>
+        {editing ? (
+          <button
+            className="z-50 text-lg fixed top-1 right-1 overflow-hidden border-2 border-solid border-orange-500 px-2 rounded-md"
+            onClick={() => setEditing(false)}
+          >
+            <span className="bg-blur"></span>
+            Done Editing
+          </button>
+        ) : (
+          <button
+            className="z-50 text-lg fixed top-1 overflow-hidden right-1 border-2 border-solid border-emerald-500 px-2 rounded-md"
+            onClick={() => setEditing(true)}
+          >
+            <span className="bg-blur"></span>
+            Edit
+          </button>
+        )}
+        <Techs
+          profile_id={profile_id}
+          technologies={technologies}
+          editing={editing}
+          projects={projects}
+        />
+        <Projects editing={editing} id={profile_id} projects={projects} />
+      </div>
     </div>
   )
 }
 
-function Techs({
-  profile_id,
-  technologies,
-  editing,
-}: TechProps & PortfolioProps) {
+function Techs({ profile_id, technologies, editing }: TechProps) {
   const [adding, setAdding] = useState(false)
+  const [editId, setEditId] = useState<number | null>(null)
+
+  function close() {
+    if (adding) {
+      setAdding(false)
+    }
+    if (editId) {
+      setEditId(null)
+    }
+  }
 
   return (
     <div className="py-5">
-      <h1 className="text-center text-2xl">Technologies</h1>
-      <main className="flex flex-wrap justify-center gap-2">
+      <main className="flex flex-wrap justify-center gap-5 ">
         {technologies?.map((item) => (
           <Technology
             id={item.id}
@@ -62,12 +135,25 @@ function Techs({
             name={item.name}
             img_url={item.img_url}
             editing={editing}
+            setEditId={setEditId}
           />
         ))}
-        {adding && (
-          <TechForm close={() => setAdding(false)} profile_id={profile_id} />
+        {(adding || editId) && (
+          <TechForm
+            close={close}
+            profile_id={profile_id}
+            id={editId}
+            data={technologies.find((tech) => tech.id == editId)}
+          />
         )}
-        {editing && <button onClick={() => setAdding(true)}>Add +</button>}
+        {editing && (
+          <button
+            className="font-semibold bg-gray-300 border-2 border-solid border-black rounded-md h-max w-max self-center p-2 hover:bg-gray-400 hover:border-gray-500"
+            onClick={() => setAdding(true)}
+          >
+            Add +
+          </button>
+        )}
       </main>
     </div>
   )
@@ -78,46 +164,60 @@ function Technology({
   name,
   img_url,
   editing,
+  setEditId,
 }: {
   editing: boolean
   id: number
   name: string
   img_url: string
+  setEditId: (id: number | null) => void
 }) {
   const deleteTechnologyWithId = deleteTechnology.bind(null, id)
 
   return (
-    <WithToolTip
-      text={name}
-      children={
-        <div className="max-w-[5em] relative p-2 h-[5em] w-[5em] border-2 border-solid rounded-sm overflow-hidden">
-          <img
-            className="h-full w-full object-contain"
-            src={img_url == "" ? "/placeholder" : img_url}
-            alt={name}
-          />
-          {editing && (
-            <form
-              action={deleteTechnologyWithId}
-              className="border-none text-red-500 absolute top-1 right-1"
-            >
-              <button className="border-none" type="submit">
-                <CircleX />
-              </button>
-            </form>
-          )}
+    <div className=" neumorphic with-tooltip max-w-[5em] relative p-2 h-[5em] w-[5em]">
+      <img
+        className="h-full w-full object-contain "
+        src={img_url == "" ? "/placeholder" : img_url}
+        alt={name}
+      />
+      {editing && (
+        <div className="absolute top-1 right-1 flex items-center gap-1 bg-white bg-opacity-70 rounded-md">
+          <form
+            action={deleteTechnologyWithId}
+            className="border-none text-red-500 flex"
+          >
+            <button className="border-none" type="submit">
+              <CircleX />
+            </button>
+          </form>
+
+          <button
+            className="border-none text-green-500"
+            onClick={() => setEditId(id)}
+          >
+            <Edit />
+          </button>
         </div>
-      }
-    />
+      )}
+      <span>{name}</span>
+    </div>
   )
 }
 
 function TechForm({
   close,
   profile_id,
+  id,
+  data,
 }: {
   close: () => void
   profile_id: number
+  id?: number | null
+  data?: {
+    name: string
+    img_url: string
+  }
 }) {
   const [state, action, pending] = useActionState(add_technology, null)
 
@@ -129,19 +229,42 @@ function TechForm({
   return (
     <form
       action={action}
-      className="fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] p-5 border-2 border-solid border-violet-500 flex flex-col gap-5  bg-opacity-50 rounded-md overflow-hidden"
+      className="fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] p-10 border-2 border-solid border-violet-500 flex flex-col gap-2  bg-opacity-50 rounded-md overflow-hidden z-50"
     >
       <div className="absolute h-full w-full top-0 left-0 z-[-1] bg-white bg-opacity-30 backdrop-blur-sm "></div>
+      <h1>{id ? "Add" : "Update"} Technology</h1>
       <input type="hidden" name="user_id" value={profile_id} />
+      {id && <input type="hidden" name="id" value={id} />}
       {state?.error && <p>{state.message}</p>}
       <label htmlFor="">Technology Name</label>
-      <input type="text" name="name" />
+      <input
+        className="border-2 border-solid border-violet-500 p-1 rounded-md"
+        type="text"
+        name="name"
+        defaultValue={data?.name}
+      />
       <label htmlFor="">Image Url</label>
-      <input type="text" name="img_url" />
-      <button type="submit" disabled={pending}>
-        Add
-      </button>
-      <button onClick={close}>Close </button>
+      <input
+        className="border-2 border-solid border-violet-500 p-1 rounded-md"
+        type="text"
+        name="img_url"
+        defaultValue={data?.img_url}
+      />
+      <footer className="flex justify-between px-5">
+        <button
+          className="border-solid border-2 border-red-500 px-2 rounded-md text-red-500 font-bold hover:bg-red-500 hover:text-white"
+          onClick={close}
+        >
+          Close
+        </button>
+        <button
+          className="border-solid border-2 border-green-500 px-2 rounded-md text-green-500 font-bold hover:bg-green-500 hover:text-white"
+          type="submit"
+          disabled={pending}
+        >
+          {id ? "Update" : "Add"}
+        </button>
+      </footer>
     </form>
   )
 }
@@ -156,9 +279,8 @@ function Projects({
   projects: Projects[]
 }) {
   return (
-    <div className="">
-      <h1 className="text-center text-2xl p-2">Projects</h1>
-      <main className="flex flex-wrap gap-2 justify-center">
+    <div className="p-10">
+      <main className="flex flex-wrap gap-10 justify-center">
         {projects.map((project) => (
           <Project
             key={project.id}
@@ -168,7 +290,7 @@ function Projects({
           />
         ))}
         {editing && (
-          <div className="p-2 border-2 border-solid border-fuchsia-500 rounded-md flex-1 min-w-[20em] max-w-[30em] h-[20em] overflow-auto flex justify-center items-center">
+          <div className="font-semibold bg-gray-300 border-2 border-solid border-black rounded-md self-center p-2 flex-1 min-w-[20em] max-w-[30em] h-[20em] overflow-auto flex justify-center items-center hover:bg-gray-400 hover:border-gray-500">
             <Link href={"/profile/" + id + "/add-project"}>Add Project</Link>
           </div>
         )}
@@ -177,73 +299,18 @@ function Projects({
   )
 }
 
-function Project({
-  editing,
-  project_id,
-  project,
-}: {
-  editing: boolean
-  project_id: number
-  project: Projects
-}) {
-  const deleteProjectWithId = deleteProject.bind(null, project_id)
-
-  const media = project.media as MediaItem[]
-  return (
-    <div className="flex flex-row relative p-2 border-2 border-solid border-fuchsia-500 rounded-xl flex-1 min-w-[25em] max-w-[100%] h-[20em] overflow-auto">
-      {editing && (
-        <form
-          action={deleteProjectWithId}
-          className="border-none text-red-500 absolute top-1 right-1"
-        >
-          <button className="border-none" type="submit">
-            <CircleX />
-          </button>
-        </form>
-      )}
-      <div className="flex flex-1 flex-col gap-5 justify-center">
-        <h2 className="text-3xl">{project.name}</h2>
-        <p>{project.description}</p>
-        <a href={project.url}>
-          <button
-            className="text-sm flex p-2 border-2 border-solid border-white bg-orange-400 rounded-lg text-white
-          hover:bg-white hover:text-orange-500 hover:border-orange-500"
-          >
-            Visit @ {project.url} <ArrowUpRight />
-          </button>
-        </a>
-      </div>
-      <div className="flex-1 p-2 ">
-        {media.map((item, index) =>
-          item?.type?.includes("image") ? (
-            <img
-              key={index}
-              src={item.url}
-              alt={item.description}
-              className="h-full w-full object-cover rounded-md"
-            />
-          ) : (
-            <video
-              key={index}
-              src={item.url}
-              controls
-              className="h-full w-full object-cover rounded-md"
-            />
-          )
-        )}
-      </div>
-    </div>
-  )
-}
-
 type TechProps = {
   editing: boolean
+  profile_id: number
+  technologies: Technologies[]
+  projects: Projects[]
 }
 
 type PortfolioProps = {
   profile_id: number
   technologies: Technologies[]
   projects: Projects[]
+  profile: InferSelectModel<typeof profiles>
 }
 
 type Technologies = {
@@ -260,10 +327,4 @@ type Projects = {
   description: string
   url: string
   media: unknown
-}
-
-type MediaItem = {
-  description: string
-  url: string
-  type: string
 }

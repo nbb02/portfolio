@@ -1,4 +1,5 @@
-import { uploadFile } from "@/app/lib/actions"
+"use server"
+import { uploadFile } from "@/app/lib/upload-file"
 import { db } from "@/src"
 import { projects } from "@/src/db/schema"
 import { revalidatePath } from "next/cache"

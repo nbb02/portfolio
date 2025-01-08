@@ -1,21 +1,19 @@
-import { createClient } from "@/utils/supabase/server"
+"use server"
+import { revalidatePath } from "next/cache"
+import { cookies } from "next/headers"
 
-async function uploadFile(file: any, bucket_name: string) {
-  const supabase = await createClient()
+async function setTheme() {
+  try {
+    const cookieStore = await cookies()
 
-  const { data, error } = await supabase.storage
-    .from(bucket_name)
-    .upload(new Date().getTime() + file.name, file)
+    const theme = cookieStore.get("theme")
 
-  if (error) {
-    throw error
+    cookieStore.set("theme", theme?.value === "dark" ? "light" : "dark")
+
+    revalidatePath("/")
+  } catch (error) {
+    console.log(error)
   }
-
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from(bucket_name).getPublicUrl(data.path)
-
-  return publicUrl
 }
 
-export { uploadFile }
+export { setTheme }

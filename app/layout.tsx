@@ -1,33 +1,27 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Roboto } from "next/font/google"
 import "./globals.css"
+import { cookies } from "next/headers"
 
-const geistSans = Geist({
+const roboto = Roboto({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
-})
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: "500",
 })
 
 export const metadata: Metadata = {
   title: "Portfolio",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const theme = (await cookies()).get("theme")
+
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+    <html lang="en" className={theme?.value === "dark" ? "dark" : ""}>
+      <body className={`${roboto.variable} antialiased`}>{children}</body>
     </html>
   )
 }

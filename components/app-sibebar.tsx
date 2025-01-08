@@ -1,12 +1,4 @@
-import {
-  Calendar,
-  Home,
-  Inbox,
-  LogIn,
-  LogOut,
-  Search,
-  Settings,
-} from "lucide-react"
+import { Home, Inbox, LogIn, LogOut } from "lucide-react"
 
 import {
   Sidebar,
@@ -14,7 +6,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -23,6 +14,8 @@ import getUser from "@/app/auth"
 import { signOut } from "@/app/login/actions"
 import Dialog from "./dialog"
 import { Button } from "./ui/button"
+import { cookies } from "next/headers"
+import { setTheme } from "@/app/lib/actions"
 
 const items = [
   {
@@ -39,6 +32,10 @@ const items = [
 
 export async function AppSidebar() {
   const user = await getUser()
+
+  const cookieStore = await cookies()
+
+  const theme = cookieStore.get("theme")
 
   return (
     <Sidebar>
@@ -61,6 +58,14 @@ export async function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
+        <form action={setTheme}>
+          <button
+            type="submit"
+            className="p-2 border-2 border-solid border-violet-500 rounded-sm hover:bg-violet-400 hover:text-white font-bold"
+          >
+            {theme?.value === "light" ? "Dark" : "Light"} Mode
+          </button>
+        </form>
         {user !== null ? (
           <div>
             <img

@@ -44,7 +44,7 @@ export default async function Page() {
 
 function UserBox({ userData }: { userData: UserData }) {
   return (
-    <div className="relative flex flex-col p-2 items-center max-w-[20em] min-w-[20em] h-[20em] flex-1 border-blue-400 border-solid border-2 rounded-lg">
+    <div className="relative flex flex-col p-2 items-center max-w-[20em] min-w-[20em] h-[20em] flex-1 neumorphic">
       <img
         className="h-[10em] w-full object-cover rounded-sm"
         src={userData?.cover_photo ?? undefined}

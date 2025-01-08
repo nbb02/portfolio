@@ -1,5 +1,5 @@
 "use server"
-import { uploadFile } from "@/app/lib/actions"
+import { uploadFile } from "@/app/lib/upload-file"
 import { db } from "@/src"
 import { profiles } from "@/src/db/schema"
 import { createClient } from "@/utils/supabase/server"
@@ -36,7 +36,7 @@ export async function create_profile(_: any, formData: FormData) {
     data.avatar_image =
       (await uploadFile(formData.get("avatar_image"), "avatars")) ?? null
 
-    const inserted = await db.insert(profiles).values(data).returning()
+    await db.insert(profiles).values(data).returning()
 
     redirect("/")
   } catch (error) {
