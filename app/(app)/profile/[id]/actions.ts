@@ -112,8 +112,6 @@ async function changeAvatar(formData: FormData): Promise<void> {
       const parts = profile_data.avatar_image.split("/")
       const old_file_name = decodeURIComponent(parts[parts.length - 1])
 
-      console.log("file_name", old_file_name)
-
       await supabase.storage.from("avatars").remove([old_file_name])
     }
 
@@ -143,7 +141,86 @@ async function changeAvatar(formData: FormData): Promise<void> {
   }
 }
 
-export { add_technology, deleteTechnology, deleteProject, changeAvatar }
+async function changeCover(formData: FormData): Promise<void> {
+  try {
+    const profile_id = Number(formData.get("profile_id"))
+    const file = formData.get("cover_photo") as File
+
+    if (!file) {
+      return
+    }
+
+    const [profile_data] = await db
+      .select({
+        cover_photo: profiles.cover_photo,
+      })
+      .from(profiles)
+      .where(eq(profiles.id, profile_id))
+      .limit(1)
+
+    const supabase = await createClient()
+
+    if (profile_data?.cover_photo) {
+      const parts = profile_data.cover_photo.split("/")
+      const old_file_name = decodeURIComponent(parts[parts.length - 1])
+
+      await supabase.storage.from("cover_photos").remove([old_file_name])
+    }
+
+    const fileName = `${new Date().getTime()}-${file.name}`
+    const { data, error } = await supabase.storage
+      .from("cover_photos")
+      .upload(fileName, file)
+
+    if (error) {
+      throw error
+    }
+
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("cover_photos").getPublicUrl(data.path)
+
+    await db
+      .update(profiles)
+      .set({ cover_photo: publicUrl })
+      .where(eq(profiles.id, profile_id))
+
+    revalidatePath("/profile")
+    return
+  } catch (error) {
+    console.error("Error in changeCover:", error)
+    return
+  }
+}
+
+async function updateProfile(formData: FormData) {
+  const data = {
+    first_name: formData.get("first_name") as string,
+    middle_name: formData.get("middle_name") as string | null,
+    last_name: formData.get("last_name") as string,
+    email: formData.get("email") as string,
+    role: formData.get("role") as string,
+    about: formData.get("about") as string,
+    country: formData.get("country") as string,
+    province: formData.get("province") as string,
+    city: formData.get("city") as string,
+  }
+
+  const profile_id = Number(formData.get("profile_id"))
+
+  await db.update(profiles).set(data).where(eq(profiles.id, profile_id))
+
+  revalidatePath("/profile")
+}
+
+export {
+  add_technology,
+  deleteTechnology,
+  deleteProject,
+  changeAvatar,
+  changeCover,
+  updateProfile,
+}
 
 type MediaItem = {
   description: string

@@ -137,3 +137,20 @@ body {
     }
   }
 }
+
+.profile-inputs {
+  @apply grid grid-cols-3 gap-4;
+
+  input,
+  textarea {
+    @apply p-1 border-[1px] border-solid border-black rounded-md;
+  }
+
+  > span {
+    @apply flex flex-col;
+  }
+
+  > span:has(> textarea[name="about"]) {
+    @apply col-span-full;
+  }
+}

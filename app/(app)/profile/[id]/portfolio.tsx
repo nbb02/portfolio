@@ -1,8 +1,14 @@
 "use client"
 import React, { useActionState, useEffect, useState } from "react"
-import { add_technology, changeAvatar, deleteTechnology } from "./actions"
+import {
+  add_technology,
+  changeAvatar,
+  changeCover,
+  deleteTechnology,
+  updateProfile,
+} from "./actions"
 import { type InferSelectModel } from "drizzle-orm"
-import { CircleX, Edit } from "lucide-react"
+import { CircleX, Edit, Save } from "lucide-react"
 import Link from "next/link"
 import Project from "@/components/project"
 import { profiles } from "@/src/db/schema"
@@ -39,9 +45,27 @@ export default function Portfolio({
             src={cover_photo ?? "/placeholder"}
             alt=""
           />
-          <button className="absolute bottom-1 right-1 bg-white px-2 rounded-lg py-1 border-2 border-solid border-green-500 text-green-500 font-bold z-50 text-sm hover:bg-green-500 hover:text-white">
-            Change cover Photo
-          </button>
+          {editing && (
+            <form
+              action={changeCover}
+              className="flex items-center gap-1 absolute bottom-1 right-1 bg-white px-2 rounded-lg py-1 border-2 border-solid border-green-500 text-green-500 font-bold z-50 text-sm hover:bg-green-500 hover:text-white"
+            >
+              <label className="text-center flex gap-1 items-center justify-center">
+                Edit <Edit />
+                <input
+                  type="file"
+                  name="cover_photo"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      e.target.form?.requestSubmit()
+                    }
+                  }}
+                />
+              </label>
+              <input type="hidden" name="profile_id" value={id} />
+            </form>
+          )}
         </div>
         <div className="block absolute top-[60%] left-1/2 -translate-x-1/2 h-[10em] w-[10em] bg-white border-solid border-2 border-black rounded-full mx-auto overflow-hidden">
           <img
@@ -49,55 +73,134 @@ export default function Portfolio({
             src={avatar_image ?? "/placeholder"}
             alt="avatar"
           />
-          <form
-            action={changeAvatar}
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-white px-2 rounded-lg py-1 border-t-2 border-solid border-green-500 text-green-500 font-bold z-50 text-sm hover:bg-green-500 hover:text-white w-full"
-          >
-            <label className="text-center block">
-              Change
-              <input
-                type="file"
-                name="avatar_image"
-                className="hidden"
-                onChange={(e) => {
-                  if (e.target.files?.[0]) {
-                    e.target.form?.requestSubmit()
-                  }
-                }}
-              />
-            </label>
-            <input type="hidden" name="profile_id" value={id} />
-          </form>
+          {editing && (
+            <form
+              action={changeAvatar}
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-white px-2 rounded-lg py-1 border-t-2 border-solid border-green-500 text-green-500 font-bold z-50 text-sm hover:bg-green-500 hover:text-white w-full"
+            >
+              <label className="text-center flex gap-1 items-center justify-center">
+                Edit <Edit />
+                <input
+                  type="file"
+                  name="avatar_image"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      e.target.form?.requestSubmit()
+                    }
+                  }}
+                />
+              </label>
+              <input type="hidden" name="profile_id" value={id} />
+            </form>
+          )}
         </div>
       </header>
-      <main className="mt-10 px-10">
-        <p className="text-4xl font-bold">
-          {last_name}, {first_name} {middle_name}
-        </p>
-        <p className="text-lg">{email}</p>
-        <p className="text-lg">{role}</p>
-        <p className="text-lg">{about}</p>
-        <p className="text-lg">
-          {city}, {province}, {country}
-        </p>
-      </main>
+      {editing ? (
+        <form action={updateProfile} className="profile-inputs mt-10 px-10">
+          <input type="hidden" name="profile_id" value={id} />
+          <span>
+            <label>First Name</label>
+            <input
+              type="text"
+              name="first_name"
+              defaultValue={first_name}
+              required
+            />
+          </span>
+          <span>
+            <label>Middle Name</label>
+            <input
+              type="text"
+              name="middle_name"
+              defaultValue={middle_name ?? ""}
+            />
+          </span>
+          <span>
+            <label>Last Name</label>
+            <input
+              type="text"
+              name="last_name"
+              defaultValue={last_name}
+              required
+            />
+          </span>
+          <span>
+            <label>Email</label>
+            <input type="text" name="email" defaultValue={email} required />
+          </span>
+          <span>
+            <label>Role</label>
+            <input type="text" name="role" defaultValue={role ?? ""} required />
+          </span>
+          <span>
+            <label>About</label>
+            <textarea
+              name="about"
+              defaultValue={about ?? ""}
+              required
+            ></textarea>
+          </span>
+          <span>
+            <label>Country</label>
+            <input
+              type="text"
+              name="country"
+              defaultValue={country ?? ""}
+              required
+            />
+          </span>
+          <span>
+            <label>Province</label>
+            <input
+              type="text"
+              name="province"
+              defaultValue={province ?? ""}
+              required
+            />
+          </span>
+          <span>
+            <label>City</label>
+            <input type="text" name="city" defaultValue={city ?? ""} required />
+          </span>
+          <button
+            type="submit"
+            className="col-span-full flex bg-white w-max p-2 border-solid border-2 border-green-500 rounded-md text-green-500 font-bold hover:bg-green-500 hover:text-white justify-self-end"
+          >
+            Save <Save />
+          </button>
+        </form>
+      ) : (
+        <main className="mt-10 px-10">
+          <p className="text-4xl font-bold">
+            {last_name}, {first_name} {middle_name}
+          </p>
+          <p className="text-lg">{email}</p>
+          <p className="text-lg">{role}</p>
+          <p className="text-lg">{about}</p>
+          <p className="text-lg">
+            {city}, {province}, {country}
+          </p>
+        </main>
+      )}
+
       <hr className="my-10 w-[90%] mx-auto" />
       <div>
         {editing ? (
           <button
-            className="z-50 text-lg fixed top-1 right-1 overflow-hidden border-2 border-solid border-orange-500 px-2 rounded-md"
+            className="z-50 text-lg fixed top-1 right-1 overflow-hidden border-2 border-solid border-orange-700 px-2 py-1 rounded-md hover:text-white hover:bg-orange-500"
             onClick={() => setEditing(false)}
           >
             <span className="bg-blur"></span>
-            Done Editing
+            <Save className="text-orange-800" />
           </button>
         ) : (
           <button
-            className="z-50 text-lg fixed top-1 overflow-hidden right-1 border-2 border-solid border-emerald-500 px-2 rounded-md"
+            className="z-50 text-lg fixed top-1 overflow-hidden right-1 border-2 border-solid border-green-800 px-2 py-1 rounded-md hover:text-white hover:bg-green-500"
             onClick={() => setEditing(true)}
           >
             <span className="bg-blur"></span>
-            Edit
+            <Edit className="text-green-800" />
           </button>
         )}
         <Techs
