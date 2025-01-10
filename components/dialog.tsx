@@ -17,15 +17,19 @@ export default function Dialog({
   description,
   children,
   className,
+  open,
+  close,
 }: {
   trigger: string
   title: string
   description: string
   className: string
   children: React.ReactNode
+  open?: boolean
+  close?: () => void
 }) {
   return (
-    <ShadcnDialog>
+    <ShadcnDialog open={open}>
       <DialogTrigger className={className}>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -34,7 +38,7 @@ export default function Dialog({
         </DialogHeader>
         <DialogFooter className="sm:justify-start">
           <DialogClose asChild>
-            <Button type="button" variant="secondary">
+            <Button type="button" variant="secondary" onClick={close}>
               Close
             </Button>
           </DialogClose>

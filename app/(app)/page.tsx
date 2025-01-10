@@ -1,6 +1,7 @@
 import { db } from "@/src"
 import { profiles } from "@/src/db/schema"
 import { createClient } from "@/utils/supabase/server"
+import Image from "next/image"
 import Link from "next/link"
 
 export default async function Page() {
@@ -44,21 +45,28 @@ export default async function Page() {
 
 function UserBox({ userData }: { userData: UserData }) {
   return (
-    <div className="relative flex flex-col p-2 items-center max-w-[20em] min-w-[20em] h-[20em] flex-1 neumorphic">
-      <img
+    <div
+      className="relative flex flex-col p-2 items-center max-w-[20em] min-w-[20em] h-[20em] flex-1 neumorphic 
+     bg-white "
+    >
+      <Image
         className="h-[10em] w-full object-cover rounded-sm"
-        src={userData?.cover_photo ?? undefined}
-        alt=""
+        src={userData?.cover_photo ?? "/placeholder.png"}
+        alt="cover photo"
+        width={160}
+        height={160}
       />
-      <img
-        src={userData?.avatar_image ?? undefined}
-        alt=""
+      <Image
+        src={userData?.avatar_image ?? "/placeholder.png"}
+        alt="avatar_image"
+        width={800}
+        height={500}
         className="top-24 absolute rounded-full block h-[8em] w-[8em] object-cover bg-white border-white border-2 border-solid"
       />
-      <p className="pt-16">
+      <p className="pt-16 text-xl font-semibold">
         {userData.first_name} {userData.last_name}
       </p>
-      <p>{userData.role}</p>
+      <p className="text-md text-gray-400 font-semibold">{userData.role}</p>
       <Link
         href={"/profile/" + userData.id}
         className="border-solid border-2 border-violet-500 rounded-sm hover:bg-violet-400 hover:text-white px-2 text-violet-500 font-bold"

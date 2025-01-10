@@ -125,7 +125,7 @@ body {
 }
 
 .neumorphic {
-  @apply rounded-2xl p-3;
+  @apply rounded-2xl p-3 dark:bg-gray-800 dark:!shadow-none dark:text-white;
   background: #ffffff;
   box-shadow: 10px 10px 30px #d9d9d9, -10px -10px 30px #ffffff;
 }

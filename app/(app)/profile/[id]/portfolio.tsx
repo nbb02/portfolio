@@ -1,5 +1,5 @@
 "use client"
-import React, { useActionState, useEffect, useState } from "react"
+import React, { useActionState, useEffect, useRef, useState } from "react"
 import {
   add_technology,
   changeAvatar,
@@ -12,6 +12,9 @@ import { CircleX, Edit, Save } from "lucide-react"
 import Link from "next/link"
 import Project from "@/components/project"
 import { profiles } from "@/src/db/schema"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import Dialog from "@/components/dialog"
 
 export default function Portfolio({
   profile_id,
@@ -20,6 +23,9 @@ export default function Portfolio({
   profile,
 }: PortfolioProps) {
   const [editing, setEditing] = useState(false)
+  const [error, setError] = useState("")
+
+  const formRef = useRef(null)
 
   const {
     id,
@@ -36,14 +42,76 @@ export default function Portfolio({
     city,
   } = profile
 
+  function handleSaveChanges() {
+    if (formRef.current) {
+      const formData = new FormData(formRef.current as HTMLFormElement)
+
+      const details = [
+        "first_name",
+        "middle_name",
+        "last_name",
+        "email",
+        "role",
+        "about",
+        "country",
+        "province",
+        "city",
+      ]
+
+      const changed_values = []
+      for (const item of details) {
+        if (item === "about") {
+          const about1 = formData.get(item) as string
+          const about2 = profile?.[item as keyof typeof profile]
+
+          if (
+            normalizeText(about1 ?? "") !==
+            normalizeText((about2 as string) ?? "")
+          ) {
+            changed_values.push(item)
+          }
+
+          continue
+        }
+        if (formData.get(item) != profile?.[item as keyof typeof profile]) {
+          changed_values.push(item)
+        }
+      }
+
+      if (changed_values.length > 0) {
+        setError(
+          "You have unsaved changes. " +
+            changed_values
+              .map((item) =>
+                item
+                  .split("_")
+                  .map((str) => str[0].toUpperCase() + str.slice(1))
+                  .join(" ")
+              )
+              .join(" | ") +
+            " changed"
+        )
+        return
+      }
+    }
+    setEditing(false)
+  }
+
+  function discard() {
+    setError("")
+    setEditing(false)
+  }
+
   return (
     <div className="p-2 relative">
       <header className="relative flex justify-center">
         <div className="relative w-full h-[20em] overflow-hidden">
-          <img
+          <Image
             className="w-full h-full object-cover cover-photo"
-            src={cover_photo ?? "/placeholder"}
-            alt=""
+            src={cover_photo ?? "/placeholder.png"}
+            alt="cover photo"
+            height={500}
+            width={800}
           />
           {editing && (
             <form
@@ -68,9 +136,11 @@ export default function Portfolio({
           )}
         </div>
         <div className="block absolute top-[60%] left-1/2 -translate-x-1/2 h-[10em] w-[10em] bg-white border-solid border-2 border-black rounded-full mx-auto overflow-hidden">
-          <img
+          <Image
             className="w-full h-full object-cover"
-            src={avatar_image ?? "/placeholder"}
+            src={avatar_image ?? "/placeholder.png"}
+            height={200}
+            width={200}
             alt="avatar"
           />
           {editing && (
@@ -97,7 +167,11 @@ export default function Portfolio({
         </div>
       </header>
       {editing ? (
-        <form action={updateProfile} className="profile-inputs mt-10 px-10">
+        <form
+          action={updateProfile}
+          className="profile-inputs mt-10 px-10"
+          ref={formRef}
+        >
           <input type="hidden" name="profile_id" value={id} />
           <span>
             <label>First Name</label>
@@ -183,13 +257,12 @@ export default function Portfolio({
           </p>
         </main>
       )}
-
       <hr className="my-10 w-[90%] mx-auto" />
       <div>
         {editing ? (
           <button
             className="z-50 text-lg fixed top-1 right-1 overflow-hidden border-2 border-solid border-orange-700 px-2 py-1 rounded-md hover:text-white hover:bg-orange-500"
-            onClick={() => setEditing(false)}
+            onClick={handleSaveChanges}
           >
             <span className="bg-blur"></span>
             <Save className="text-orange-800" />
@@ -211,6 +284,21 @@ export default function Portfolio({
         />
         <Projects editing={editing} id={profile_id} projects={projects} />
       </div>
+      {error && (
+        <Dialog
+          open={true}
+          close={() => setError("")}
+          className="flex gap-2 text-s font-semibold border-2 border-solid border-violet-500 px-2 py-1 rounded-sm hover:bg-violet-400 hover:text-white"
+          children={
+            <Button variant="destructive" onClick={discard}>
+              Discard
+            </Button>
+          }
+          trigger="Discard"
+          title="Confirm"
+          description={error}
+        />
+      )}
     </div>
   )
 }
@@ -279,10 +367,12 @@ function Technology({
 
   return (
     <div className=" neumorphic with-tooltip max-w-[5em] relative p-2 h-[5em] w-[5em]">
-      <img
+      <Image
         className="h-full w-full object-contain "
-        src={img_url == "" ? "/placeholder" : img_url}
+        src={img_url ?? "/placeholder"}
         alt={name}
+        height={200}
+        width={200}
       />
       {editing && (
         <div className="absolute top-1 right-1 flex items-center gap-1 bg-white bg-opacity-70 rounded-md">
@@ -332,10 +422,10 @@ function TechForm({
   return (
     <form
       action={action}
-      className="fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] p-10 border-2 border-solid border-violet-500 flex flex-col gap-2  bg-opacity-50 rounded-md overflow-hidden z-50"
+      className="fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] p-10 border-2 border-solid border-violet-500 flex flex-col gap-2  bg-opacity-50 rounded-md overflow-hidden z-50 shadow-lg shadow-gray-400"
     >
       <div className="absolute h-full w-full top-0 left-0 z-[-1] bg-white bg-opacity-30 backdrop-blur-sm "></div>
-      <h1>{id ? "Add" : "Update"} Technology</h1>
+      <h1 className="text-lg font-bold">{id ? "Add" : "Update"} Technology</h1>
       <input type="hidden" name="user_id" value={profile_id} />
       {id && <input type="hidden" name="id" value={id} />}
       {state?.error && <p>{state.message}</p>}
@@ -353,7 +443,7 @@ function TechForm({
         name="img_url"
         defaultValue={data?.img_url}
       />
-      <footer className="flex justify-between px-5">
+      <footer className="flex justify-between pt-10">
         <button
           className="border-solid border-2 border-red-500 px-2 rounded-md text-red-500 font-bold hover:bg-red-500 hover:text-white"
           onClick={close}
@@ -430,4 +520,12 @@ type Projects = {
   description: string
   url: string
   media: unknown
+}
+
+function normalizeText(text: string) {
+  return text
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase()
+    .replace(/\n|\r\n/g, " ")
 }
