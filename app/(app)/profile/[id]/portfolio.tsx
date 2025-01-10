@@ -339,7 +339,7 @@ function Techs({ profile_id, technologies, editing }: TechProps) {
         )}
         {editing && (
           <button
-            className="font-semibold bg-gray-300 border-2 border-solid border-black rounded-md h-max w-max self-center p-2 hover:bg-gray-400 hover:border-gray-500"
+            className="font-semibold bg-gray-300 border-2 border-solid border-black rounded-md h-max w-max self-center p-2 hover:!bg-gray-400 hover:border-gray-500 dark:bg-gray-700 dark:border-white"
             onClick={() => setAdding(true)}
           >
             Add +
@@ -422,23 +422,23 @@ function TechForm({
   return (
     <form
       action={action}
-      className="fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] p-10 border-2 border-solid border-violet-500 flex flex-col gap-2  bg-opacity-50 rounded-md overflow-hidden z-50 shadow-lg shadow-gray-400"
+      className="fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] p-10 border-2 border-solid border-violet-500 flex flex-col gap-2 !bg-opacity-50 rounded-md overflow-hidden shadow-lg shadow-gray-400 z-50"
     >
-      <div className="absolute h-full w-full top-0 left-0 z-[-1] bg-white bg-opacity-30 backdrop-blur-sm "></div>
+      <div className="absolute h-full w-full top-0 left-0 z-[-1] bg-white dark:dark:bg-gray-700 bg-opacity-30 backdrop-blur-sm "></div>
       <h1 className="text-lg font-bold">{id ? "Add" : "Update"} Technology</h1>
       <input type="hidden" name="user_id" value={profile_id} />
       {id && <input type="hidden" name="id" value={id} />}
       {state?.error && <p>{state.message}</p>}
       <label htmlFor="">Technology Name</label>
       <input
-        className="border-2 border-solid border-violet-500 p-1 rounded-md"
+        className="border-2 border-solid border-violet-500 p-1 px-2 rounded-md dark:bg-gray-700 "
         type="text"
         name="name"
         defaultValue={data?.name}
       />
       <label htmlFor="">Image Url</label>
       <input
-        className="border-2 border-solid border-violet-500 p-1 rounded-md"
+        className="border-2 border-solid border-violet-500 p-1 px-2 rounded-md dark:bg-gray-700 "
         type="text"
         name="img_url"
         defaultValue={data?.img_url}
@@ -483,7 +483,10 @@ function Projects({
           />
         ))}
         {editing && (
-          <div className="font-semibold bg-gray-300 border-2 border-solid border-black rounded-md self-center p-2 flex-1 min-w-[20em] max-w-[30em] h-[20em] overflow-auto flex justify-center items-center hover:bg-gray-400 hover:border-gray-500">
+          <div
+            className="font-semibold bg-gray-300 border-2 border-solid border-black rounded-md self-center p-2 flex-1 min-w-[20em] max-w-[30em] h-[20em] overflow-auto flex justify-center items-center
+           hover:!bg-gray-400 hover:border-gray-500 dark:bg-gray-700 dark:border-white"
+          >
             <Link href={"/profile/" + id + "/add-project"}>Add Project</Link>
           </div>
         )}

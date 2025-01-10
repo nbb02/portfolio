@@ -4,8 +4,7 @@ import "./globals.css"
 import { cookies } from "next/headers"
 
 const roboto = Roboto({
-  variable: "--font-geist-sans",
-  weight: "500",
+  weight: ["300", "400", "500"],
 })
 
 export const metadata: Metadata = {
@@ -21,7 +20,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={theme?.value === "dark" ? "dark" : ""}>
-      <body className={`${roboto.variable} antialiased`}>{children}</body>
+      <body className={`${roboto.className} antialiased`}>{children}</body>
     </html>
   )
 }

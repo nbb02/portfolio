@@ -1,5 +1,4 @@
 import { Home, Inbox, LogIn, LogOut } from "lucide-react"
-import themeSwitch from "@/styles/themeSwitch.module.css"
 import {
   Sidebar,
   SidebarContent,
@@ -15,8 +14,9 @@ import { signOut } from "@/app/login/actions"
 import Dialog from "./dialog"
 import { Button } from "./ui/button"
 import { cookies, headers } from "next/headers"
-import { setTheme } from "@/app/lib/actions"
 import ThemeSwitch from "./theme-switch"
+import { cn } from "@/lib/utils"
+import { Roboto } from "next/font/google"
 
 const items = [
   {
@@ -50,17 +50,28 @@ export async function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem
                   key={item.title}
-                  className={
-                    item.url === "/"
-                      ? path == item.url
-                        ? "bg-indigo-300 p-1 rounded-lg text-white"
-                        : ""
-                      : path?.startsWith(item.url)
-                      ? "bg-indigo-300 p-1 rounded-lg text-white"
-                      : ""
-                  }
+                  className={cn(
+                    "p-1 rounded-lg border-[1px] border-solid hover:border-indigo-300 hover:text-indigo-500",
+                    {
+                      "!bg-indigo-300 text-white":
+                        item.url === "/"
+                          ? path == item.url
+                          : path?.startsWith(item.url),
+                    }
+                  )}
                 >
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    asChild
+                    className={cn(
+                      item.url === "/"
+                        ? path == item.url
+                          ? "!bg-indigo-300 !text-white"
+                          : "hover:text-indigo-500"
+                        : path?.startsWith(item.url)
+                        ? "!bg-indigo-300 !text-white"
+                        : "hover:text-indigo-500 dark:text-white"
+                    )}
+                  >
                     <a href={item.url}>
                       <item.icon />
                       <span className="text-lg">{item.title}</span>

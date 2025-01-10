@@ -20,10 +20,10 @@ export default function Dialog({
   open,
   close,
 }: {
-  trigger: string
+  trigger: string | React.ReactNode
   title: string
   description: string
-  className: string
+  className?: string
   children: React.ReactNode
   open?: boolean
   close?: () => void

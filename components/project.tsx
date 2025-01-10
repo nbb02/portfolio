@@ -1,10 +1,11 @@
 "use client"
 import { deleteProject } from "@/app/(app)/profile/[id]/actions"
-import { MediaItem, Projects } from "@/types/types"
+import { MediaItem, Project as ProjectType } from "@/types/types"
 import { ArrowUpRight, CircleX, Edit } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import Media from "./media"
 
 export default function Project({
   editing,
@@ -13,7 +14,7 @@ export default function Project({
 }: {
   editing?: boolean
   project_id: number
-  project: Projects
+  project: ProjectType
 }) {
   const deleteProjectWithId = deleteProject.bind(null, project_id)
 
@@ -48,7 +49,7 @@ export default function Project({
   return (
     <div className=" text-black flex flex-row relative p-2 border-2 border-solid rounded-xl flex-1 min-w-[25em] max-w-[40em] h-[20em] overflow-auto neumorphic">
       {editing && (
-        <div className="absolute top-1 right-1 flex items-center gap-1 bg-white bg-opacity-70 rounded-md z-50">
+        <div className="absolute top-1 right-1 flex items-center gap-1 bg-white bg-opacity-70 rounded-md z-30">
           <form
             action={deleteProjectWithId}
             className="border-none text-red-500 flex"
@@ -76,36 +77,21 @@ export default function Project({
         </a>
       </div>
       <div className="flex-1 p-2 overflow-hidden relative top-0 left-0 ">
-        {media.map((item, i) =>
-          item?.type?.includes("image") ? (
-            <Image
-              key={i}
-              src={item.url ?? "/placeholder.png"}
-              alt={item.description}
-              className={`absolute top-0 left-0 h-full w-full object-cover rounded-md ${
-                index === i ? "slide-in z-20" : ""
-              }`}
-              height={500}
-              width={500}
-              onMouseEnter={() => setHoovered(true)}
-              onMouseLeave={() => setHoovered(false)}
-            />
-          ) : (
-            <video
-              key={i}
-              src={item.url}
-              controls
-              className={`absolute top-0 left-0 h-full w-full object-cover rounded-md ${
-                index === i ? "slide-in z-20" : ""
-              }`}
-              onMouseEnter={() => setHoovered(true)}
-              onMouseLeave={() => setHoovered(false)}
-            />
-          )
-        )}
-        <div className="flex gap-1 absolute bottom-0 left-1/2 -translate-x-1/2 bg-white p-1 bg-opacity-50 z-20 rounded-lg">
-          {media.length > 1 &&
-            media.map((_, i) => (
+        {media.map((item, i) => (
+          <Media
+            key={i}
+            media={item}
+            index={i}
+            onMouseEnter={() => setHoovered(true)}
+            onMouseLeave={() => setHoovered(false)}
+            className={`absolute top-0 left-0 h-full w-full object-cover rounded-md ${
+              i === index ? "slide-in z-20" : ""
+            }`}
+          />
+        ))}
+        {media.length > 1 && (
+          <div className="flex gap-1 absolute bottom-0 left-1/2 -translate-x-1/2 bg-white p-1 bg-opacity-50 z-20 rounded-lg">
+            {media.map((_, i) => (
               <button
                 className={` rounded-full h-3 w-3 hover:bg-gray-500 ${
                   i === index ? "bg-black" : "bg-gray-400"
@@ -117,7 +103,8 @@ export default function Project({
                 }}
               ></button>
             ))}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   )

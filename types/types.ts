@@ -4,7 +4,7 @@ export type MediaItem = {
   type: string
 }
 
-export type Projects = {
+export type Project = {
   id: number
   user_id: number
   name: string

@@ -1,26 +1,21 @@
-import Project from "@/components/project"
 import { db } from "@/src"
 import { projects } from "@/src/db/schema"
-import { Projects } from "@/types/types"
 import { eq } from "drizzle-orm"
+import ProjectItem from "./project-item"
 
 export default async function Page({
   params,
 }: {
-  params: {
+  params: Promise<{
     id: number
-  }
+  }>
 }) {
-  const [project]: Projects[] = await db
+  const project_id = (await params).id
+  const [project] = await db
     .select()
     .from(projects)
-    .where(eq(projects.id, params.id))
+    .where(eq(projects.id, project_id))
     .limit(1)
 
-  return (
-    <div>
-      {params.id}
-      <Project project_id={project.id} project={project} />
-    </div>
-  )
+  return <ProjectItem project={project} />
 }
