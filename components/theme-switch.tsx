@@ -1,5 +1,5 @@
 "use client"
-import { setTheme } from "@/app/lib/actions"
+import { setTheme } from "@/lib/actions"
 import themeSwitch from "@/styles/themeSwitch.module.css"
 
 export default function ThemeSwitch({ theme }: { theme: string }) {

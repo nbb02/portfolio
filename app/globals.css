@@ -167,3 +167,12 @@ body {
 .slide-in {
   animation: slide-in 0.5s ease-out forwards;
 }
+
+input,
+textarea {
+  @apply dark:bg-gray-800;
+}
+
+label {
+  @apply dark:text-white;
+}

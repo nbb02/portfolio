@@ -1,5 +1,5 @@
 "use server"
-import { uploadFile } from "@/app/lib/upload-file"
+import { uploadFile } from "@/lib/upload-file"
 import { db } from "@/src"
 import { profiles } from "@/src/db/schema"
 import { createClient } from "@/utils/supabase/server"

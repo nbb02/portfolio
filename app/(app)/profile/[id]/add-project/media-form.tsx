@@ -28,10 +28,10 @@ export default function MediaForm({ id }: { id: string }) {
 
   const router = useRouter()
 
-  async function handleSubmit(event: any) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const formData = new FormData(event.target)
+    const formData = new FormData(event.currentTarget)
 
     await fetch(`/api/add-project/${id}`, {
       method: "POST",

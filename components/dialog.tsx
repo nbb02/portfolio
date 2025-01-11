@@ -19,6 +19,7 @@ export default function Dialog({
   className,
   open,
   close,
+  onOpenChange,
 }: {
   trigger: string | React.ReactNode
   title: string
@@ -27,9 +28,10 @@ export default function Dialog({
   children: React.ReactNode
   open?: boolean
   close?: () => void
+  onOpenChange?: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   return (
-    <ShadcnDialog open={open}>
+    <ShadcnDialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger className={className}>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
