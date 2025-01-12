@@ -2,6 +2,7 @@ import { db } from "@/src"
 import { profiles, projects, technologies } from "@/src/db/schema"
 import { eq } from "drizzle-orm"
 import Portfolio from "./portfolio"
+import getUser from "@/app/auth"
 
 export default async function Page({
   params,
@@ -40,12 +41,15 @@ export default async function Page({
     .from(projects)
     .where(eq(projects.user_id, profile[0].id))
 
+  const user_id = (await getUser())?.id
+
   return (
     <Portfolio
       profile={profile[0]}
       profile_id={profile[0].id}
       technologies={allTechnologies}
       projects={allProjects}
+      user_id={user_id}
     />
   )
 }

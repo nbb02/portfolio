@@ -2,10 +2,11 @@
 
 import Media from "@/components/media"
 import { MediaItem, Project } from "@/types/types"
-import { RefreshCcw, Save, Trash2 } from "lucide-react"
+import { ArrowLeft, RefreshCcw, Save, Trash2 } from "lucide-react"
 import React, { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Modal from "@/components/modal"
+import { cn } from "@/lib/utils"
 
 export default function ProjectItem({ project }: { project: Project }) {
   const searchParams = useSearchParams()
@@ -19,11 +20,11 @@ export default function ProjectItem({ project }: { project: Project }) {
     [key: number]: boolean
   }>({})
 
-  const handleDescriptionChange = (
+  function handleDescriptionChange(
     index: number,
     newValue: string,
     originalValue: string
-  ) => {
+  ) {
     setDescriptionChange((prev) => ({
       ...prev,
       [index]: newValue !== originalValue,
@@ -35,11 +36,22 @@ export default function ProjectItem({ project }: { project: Project }) {
     const formData = new FormData(e.currentTarget)
 
     try {
-      await fetch(`/api/media/${project.id}`, {
+      const response = await fetch(`/api/media/${project.id}`, {
         method: "PUT",
         body: formData,
       })
+      const data = await response.json()
+      if (data?.error) {
+        alert(data?.message)
+      }
       router.refresh()
+      if (formData.get("description")) {
+        setDescriptionChange((prev) => {
+          const data = prev
+          delete data[Number(formData.get("index"))]
+          return data
+        })
+      }
     } catch (error) {
       console.log(error)
     }
@@ -57,144 +69,212 @@ export default function ProjectItem({ project }: { project: Project }) {
     }
   }
 
+  async function handleProjectUpdate(e: any) {
+    const formData = new FormData(e.currentTarget)
+    try {
+      const response = await fetch(`/api/project/${project.id}`, {
+        method: "PUT",
+        body: formData,
+      })
+      const data = await response.json()
+
+      setEditing(!editing)
+      if (data?.error) {
+        alert(data?.message)
+      }
+      router.refresh()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <div className="p-5 relative">
-      <button
-        className="absolute right-5 top-5 border-2 border-solid border-green-500 text-green-500 py-1 px-2 rounded-md"
-        onClick={() => setEditing(!editing)}
+      <a
+        className="absolute left-5 top-5 border-2 border-solid border-blue-500 text-blue-500 py-1 px-2 rounded-md hover:bg-blue-500 hover:text-white"
+        onClick={() => router.back()}
       >
-        {editing ? "Done" : "Edit"}
-      </button>
+        <ArrowLeft />
+      </a>
+      {!editing && (
+        <button
+          onClick={() => setEditing(!editing)}
+          className="absolute right-5 top-5 border-2 border-solid border-green-500 text-green-500 py-1 px-2 rounded-md hover:bg-green-500 hover:text-white"
+        >
+          Edit
+        </button>
+      )}
       {editing ? (
-        <>
-          <span className="block mb-2">
+        <form
+          onSubmit={handleProjectUpdate}
+          className="flex flex-col gap-2 w-full mt-10"
+        >
+          <button
+            className="absolute right-5 top-5 border-2 border-solid border-green-500 text-green-500 py-1 px-2 rounded-md hover:bg-green-500 hover:text-white"
+            type="submit"
+          >
+            Done
+          </button>
+          <span className=" block mb-2">
             <label className="block text-sm font-medium text-gray-700">
               Name
             </label>
             <input
               type="text"
               name="name"
-              className="border-2 border-solid border-black p-1"
+              className="border-[1px] border-solid border-black p-1 w-[20em] rounded-sm"
               defaultValue={project.name}
             />
           </span>
-          <span className="block mb-2">
+          <span className=" block mb-2">
             <label className="block text-sm font-medium text-gray-700">
               Description
             </label>
             <textarea
               name="description"
-              className="border-2 border-solid border-black p-1"
+              className="border-[1px] border-solid border-black p-1 w-[20em] rounded-sm h-[10em]"
               defaultValue={project.description}
             />
           </span>
-          <span className="block mb-2">
+          <span className=" block mb-2">
             <label className="block text-sm font-medium text-gray-700">
               URL
             </label>
             <input
               type="text"
               name="url"
-              className="border-2 border-solid border-black p-1"
+              className="border-[1px] border-solid border-black p-1 w-[20em] rounded-sm"
               defaultValue={project.url}
             />
           </span>
-        </>
+        </form>
       ) : (
-        <>
-          <h1 className="text-3xl font-bold">{project.name}</h1>
-          <p className="text-lg">{project.description}</p>
-          <p>Visit @ {project.url}</p>
-        </>
-      )}
-      <div className="flex flex-wrap gap-2">
-        {media.map((item, index) => {
-          return editing ? (
-            <div
-              key={index}
-              className="p-2 border-2 border-solid border-black max-w-[20em] flex flex-col rounded-lg gap-2 overflow-hidden relative h-[20em]"
-            >
-              <Media media={item} className="flex-1 object-cover" />
-              <div className=" absolute top-1 right-1 flex gap-1">
-                <form onSubmit={handleUpdate} className="z-50">
-                  <label>
-                    <RefreshCcw
-                      className="dark:text-red-500 bg-white  rounded-lg border-2 border-solid border-red-500 text-red-500 font-bold p-1 hover:bg-red-500 hover:!text-white"
-                      size={35}
-                    />
-                    <input
-                      type="file"
-                      name="media"
-                      className="hidden"
-                      onChange={(e) => {
-                        if (e.target.files?.[0]) {
-                          e.target.form?.requestSubmit()
-                        }
-                      }}
-                    />
-                  </label>
-                  <input type="hidden" name="index" value={index} />
-                </form>
-                <button
-                  className="border-2 border-solid text-red-500 p-1 rounded-lg border-red-500 hover:bg-red-500 hover:text-white bg-white"
-                  onClick={() => setDeleteId(index)}
-                >
-                  <Trash2 />
-                </button>
-                {deleteId != null && (
-                  <Modal
-                    title="Are you sure you want to delete this project?"
-                    description={"This action cannot be undone."}
-                    confirmFn={() => handleDelete(deleteId)}
-                    closeFn={() => setDeleteId(null)}
-                  />
-                )}
-              </div>
-              <form className="flex gap-1 items-center">
-                <span className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    className="border-2 border-solid border-black p-1 w-full"
-                    style={{ resize: "none" }}
-                    defaultValue={item.description}
-                    onChange={(e) =>
-                      handleDescriptionChange(
-                        index,
-                        e.target.value,
-                        item.description
-                      )
-                    }
-                  />
-                </span>
-                {descriptionChange[index] && (
-                  <button className="w-max bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
-                    <Save />
-                  </button>
-                )}
-              </form>
-            </div>
-          ) : (
-            <div
-              key={index}
-              className="p-2 border-2 border-solid border-black max-w-[20em] flex flex-col rounded-lg gap-2"
-            >
-              <Media media={item} index={index} />
-            </div>
-          )
-        })}
-        <div className="border-2 flex-1 max-w-[20em] border-solid border-green-500 p-2 rounded-lg flex justify-center items-center text-green-500 font-bold">
-          <button
-            onClick={() => {
-              setAdding(true)
-            }}
+        <div className="flex flex-col gap-2 p-2">
+          <h1 className="text-2xl font-bold mt-10">{project.name}</h1>
+          <pre className="text-justify text-md font-sans">
+            {project.description}
+          </pre>
+          <a
+            className="bg-gray-300 w-max px-2 py-1 rounded-md text-black hover:bg-gray-400 hover:text-white"
+            href={project.url}
           >
-            Add Media +
-          </button>
+            Visit @ {project.url}
+          </a>
         </div>
-      </div>
+      )}
+      {editing ? (
+        <div className="flex flex-wrap gap-5">
+          {media.map((item, index) => {
+            return (
+              <div
+                key={index}
+                className="p-2 border-2 border-solid border-black max-w-[20em] flex flex-col rounded-lg gap-2 overflow-hidden relative h-[20em]"
+              >
+                <Media media={item} className="flex-1 object-cover" />
+                <div className=" absolute top-1 right-1 flex gap-1">
+                  <form onSubmit={handleUpdate} className="z-50">
+                    <label>
+                      <RefreshCcw
+                        className="dark:text-red-500 bg-white  rounded-lg border-2 border-solid border-red-500 text-red-500 font-bold p-1 hover:bg-red-500 hover:!text-white"
+                        size={35}
+                      />
+                      <input
+                        type="file"
+                        name="media"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            e.target.form?.requestSubmit()
+                            e.target.value = ""
+                          }
+                        }}
+                      />
+                    </label>
+                    <input type="hidden" name="index" value={index} />
+                  </form>
+                  <button
+                    className="border-2 border-solid text-red-500 p-1 rounded-lg border-red-500 hover:bg-red-500 hover:text-white bg-white"
+                    onClick={() => setDeleteId(index)}
+                  >
+                    <Trash2 />
+                  </button>
+                  {deleteId != null && (
+                    <Modal
+                      title="Are you sure you want to delete this project?"
+                      description={"This action cannot be undone."}
+                      confirmFn={() => handleDelete(deleteId)}
+                      closeFn={() => setDeleteId(null)}
+                    />
+                  )}
+                </div>
+                <form
+                  onSubmit={handleUpdate}
+                  className="flex gap-1 items-center"
+                >
+                  <span className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Description
+                    </label>
+                    <textarea
+                      name="description"
+                      className="border-2 border-solid border-black p-1 w-full"
+                      style={{ resize: "none" }}
+                      defaultValue={item.description}
+                      onChange={(e) =>
+                        handleDescriptionChange(
+                          index,
+                          e.target.value,
+                          item.description
+                        )
+                      }
+                    />
+                  </span>
+                  <input type="hidden" name="index" value={index} />
+                  {descriptionChange[index] && (
+                    <button className="w-max bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
+                      <Save />
+                    </button>
+                  )}
+                </form>
+              </div>
+            )
+          })}
+          <div className="border-2 flex-1 max-w-[20em] border-solid border-green-500 p-2 rounded-lg flex justify-center items-center text-green-500 font-bold">
+            <button
+              onClick={() => {
+                setAdding(true)
+              }}
+            >
+              Add Media +
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-5 items-center">
+          {media.map((item, index) => {
+            return (
+              <div
+                key={index}
+                className={cn(
+                  "p-2 border-2 border-solid border-black w-full h-[30em] max-h-full flex flex-col  overflow-hidden rounded-md max-w-[80em]",
+                  index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+                )}
+              >
+                <div className="overflow-hidden flex-1 bg-black bg-opacity-10 p-1 flex ">
+                  <Media
+                    media={item}
+                    index={index}
+                    className="object-contain h-full w-full"
+                  />
+                </div>
+                <p className="w-full h-[10em] max-w-[35%] md:h-full p-2 flex justify-center items-center">
+                  {item.description}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      )}
       {adding && (
         <NewMediaForm
           project_id={project.id}

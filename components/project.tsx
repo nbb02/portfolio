@@ -2,10 +2,10 @@
 import { deleteProject } from "@/app/(app)/profile/[id]/actions"
 import { MediaItem, Project as ProjectType } from "@/types/types"
 import { ArrowUpRight, CircleX, Edit } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import Media from "./media"
+import { cn } from "@/lib/utils"
 
 export default function Project({
   editing,
@@ -19,6 +19,7 @@ export default function Project({
   const deleteProjectWithId = deleteProject.bind(null, project_id)
 
   const [index, setIndex] = useState(0)
+  const [oldIndex, setOldIndex] = useState(0)
   const [paused, setPaused] = useState(false)
   const [hoovered, setHoovered] = useState(false)
 
@@ -29,7 +30,10 @@ export default function Project({
 
     if (!paused) {
       interval = setInterval(() => {
-        setIndex((prevIndex) => (prevIndex + 1) % media.length)
+        setIndex((prevIndex) => {
+          setOldIndex(prevIndex)
+          return (prevIndex + 1) % media.length
+        })
       }, 5000)
     } else {
       clearInterval(interval)
@@ -66,14 +70,25 @@ export default function Project({
           </Link>
         </div>
       )}
-      <div className="flex flex-1 flex-col gap-5 justify-center p-2">
-        <h2 className="text-3xl">{project.name}</h2>
-        <p>{project.description}</p>
-        <a href={project.url}>
-          <button className="gap-1  flex p-2  bg-orange-400 rounded-lg text-white border-[1px] border-solid hover:text-orange-500 border-orange-400 hover:bg-orange-50 hover:font-bold">
-            Visit
-            <ArrowUpRight />
-          </button>
+      <div className="flex flex-1 flex-col gap-2 justify-center p-2">
+        <h2 className="text-lg font-medium h-[5em] overflow-auto">
+          {project.name}
+        </h2>
+        <p className="flex-1 overflow-auto text-sm">{project.description}</p>
+        <p>
+          <Link
+            className="gap-1  flex px-5 py-1  bg-orange-400 rounded-sm text-white border-[1px] border-solid hover:text-orange-500 border-orange-400 hover:bg-orange-50 hover:font-bold w-max"
+            href={"/projects/" + project_id}
+          >
+            View
+          </Link>
+        </p>
+        <a
+          href={project.url}
+          className="justify-self-end mt-auto text-sm text-gray-400 border-[1px] border-solid border-gray-300 w-max px-2 py-1 rounded-sm hover:text-white hover:bg-gray-500 flex items-center"
+        >
+          Visit @ {project.url}
+          <ArrowUpRight />
         </a>
       </div>
       <div className="flex-1 p-2 overflow-hidden relative top-0 left-0 ">
@@ -84,21 +99,25 @@ export default function Project({
             index={i}
             onMouseEnter={() => setHoovered(true)}
             onMouseLeave={() => setHoovered(false)}
-            className={`absolute top-0 left-0 h-full w-full object-cover rounded-md ${
-              i === index ? "slide-in z-20" : ""
-            }`}
+            className={cn(
+              "absolute top-0 left-0 h-full w-full object-cover rounded-md",
+              i === index ? "slide-in z-20" : "",
+              i === oldIndex ? "z-[19]" : ""
+            )}
           />
         ))}
         {media.length > 1 && (
           <div className="flex gap-1 absolute bottom-0 left-1/2 -translate-x-1/2 bg-white p-1 bg-opacity-50 z-20 rounded-lg">
             {media.map((_, i) => (
               <button
-                className={` rounded-full h-3 w-3 hover:bg-gray-500 ${
+                className={cn(
+                  "rounded-full h-3 w-3 hover:bg-gray-500 ",
                   i === index ? "bg-black" : "bg-gray-400"
-                }`}
+                )}
                 key={i}
                 onClick={() => {
                   setIndex(i)
+                  setOldIndex(index)
                   setPaused(true)
                 }}
               ></button>

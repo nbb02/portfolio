@@ -33,7 +33,7 @@ export default function MediaForm({ id }: { id: string }) {
 
     const formData = new FormData(event.currentTarget)
 
-    await fetch(`/api/add-project/${id}`, {
+    await fetch(`/api/project/${id}`, {
       method: "POST",
       body: formData,
     })

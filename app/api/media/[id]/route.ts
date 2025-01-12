@@ -1,5 +1,6 @@
+"use server"
 import { uploadFile } from "@/lib/upload-file"
-import { decodePath } from "@/lib/utils"
+import { decodePath, validatedFile } from "@/lib/utils"
 import { db } from "@/src"
 import { projects } from "@/src/db/schema"
 import { MediaItem } from "@/types/types"
@@ -25,6 +26,14 @@ export async function POST(
       return Response.json({
         error: true,
         message: "File and Description Required",
+      })
+    }
+
+    const validate = validatedFile(media.file as File)
+    if (!validate.valid) {
+      return Response.json({
+        error: true,
+        message: validate.error,
       })
     }
 
@@ -104,12 +113,23 @@ export async function PUT(
     } = {}
 
     if (data?.file) {
+      const validate = validatedFile(data.file)
+      if (!validate.valid) {
+        return Response.json({
+          error: true,
+          message: validate.error,
+        })
+      }
+
       const oldMediaPath = decodePath(selected.url.split("/").pop() as string)
 
+      console.log(oldMediaPath)
       const supabase = await createClient()
       await supabase.storage.from("projects").remove([oldMediaPath])
 
       updateData.url = await uploadFile(data.file, "projects")
+      console.log(updateData.url)
+
       updateData.type = data.file.type
     } else {
       updateData.url = selected.url

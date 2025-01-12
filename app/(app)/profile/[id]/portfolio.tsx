@@ -21,6 +21,7 @@ export default function Portfolio({
   technologies,
   projects,
   profile,
+  user_id,
 }: PortfolioProps) {
   const [editing, setEditing] = useState(false)
   const [error, setError] = useState("")
@@ -259,23 +260,24 @@ export default function Portfolio({
       )}
       <hr className="my-10 w-[90%] mx-auto" />
       <div>
-        {editing ? (
-          <button
-            className="z-50 text-lg fixed top-1 right-1 overflow-hidden border-2 border-solid border-orange-700 px-2 py-1 rounded-md hover:text-white hover:bg-orange-500"
-            onClick={handleSaveChanges}
-          >
-            <span className="bg-blur"></span>
-            <Save className="text-orange-800" />
-          </button>
-        ) : (
-          <button
-            className="z-50 text-lg fixed top-1 overflow-hidden right-1 border-2 border-solid border-green-800 px-2 py-1 rounded-md hover:text-white hover:bg-green-500"
-            onClick={() => setEditing(true)}
-          >
-            <span className="bg-blur"></span>
-            <Edit className="text-green-800" />
-          </button>
-        )}
+        {user_id === profile.user_id &&
+          (editing ? (
+            <button
+              className="z-50 text-lg fixed top-1 right-1 overflow-hidden border-2 border-solid border-orange-700 px-2 py-1 rounded-md hover:text-white hover:bg-orange-500"
+              onClick={handleSaveChanges}
+            >
+              <span className="bg-blur"></span>
+              <Save className="text-orange-800" />
+            </button>
+          ) : (
+            <button
+              className="z-50 text-lg fixed top-1 overflow-hidden right-1 border-2 border-solid border-green-800 px-2 py-1 rounded-md hover:text-white hover:bg-green-500"
+              onClick={() => setEditing(true)}
+            >
+              <span className="bg-blur"></span>
+              <Edit className="text-green-800" />
+            </button>
+          ))}
         <Techs
           profile_id={profile_id}
           technologies={technologies}
@@ -507,6 +509,7 @@ type PortfolioProps = {
   technologies: Technologies[]
   projects: Projects[]
   profile: InferSelectModel<typeof profiles>
+  user_id: string | undefined
 }
 
 type Technologies = {

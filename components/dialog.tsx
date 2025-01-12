@@ -7,6 +7,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { DialogClose } from "@radix-ui/react-dialog"
 import { Button } from "./ui/button"
 import React from "react"
@@ -33,6 +34,7 @@ export default function Dialog({
   return (
     <ShadcnDialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger className={className}>{trigger}</DialogTrigger>
+      <DialogTitle></DialogTitle>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

@@ -16,7 +16,6 @@ import { Button } from "./ui/button"
 import { cookies, headers } from "next/headers"
 import ThemeSwitch from "./theme-switch"
 import { cn } from "@/lib/utils"
-import { Roboto } from "next/font/google"
 
 const items = [
   {
@@ -51,7 +50,7 @@ export async function AppSidebar() {
                 <SidebarMenuItem
                   key={item.title}
                   className={cn(
-                    "p-1 rounded-lg border-[1px] border-solid hover:border-indigo-300 hover:text-indigo-500",
+                    "p-1 rounded-lg border-[1px] border-solid hover:border-indigo-300 hover:text-indigo-500 dark:hover:text-white",
                     {
                       "!bg-indigo-300 text-white":
                         item.url === "/"
@@ -66,7 +65,7 @@ export async function AppSidebar() {
                       item.url === "/"
                         ? path == item.url
                           ? "!bg-indigo-300 !text-white"
-                          : "hover:text-indigo-500"
+                          : "hover:text-indigo-500 dark:hover:text-white"
                         : path?.startsWith(item.url)
                         ? "!bg-indigo-300 !text-white"
                         : "hover:text-indigo-500 dark:text-white"
