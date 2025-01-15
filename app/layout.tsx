@@ -4,7 +4,7 @@ import "./globals.css"
 import { cookies } from "next/headers"
 
 const roboto = Roboto({
-  weight: ["300", "400", "500"],
+  weight: ["300", "400", "500", "700"],
 })
 
 export const metadata: Metadata = {

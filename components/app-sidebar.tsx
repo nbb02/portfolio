@@ -82,8 +82,8 @@ export async function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="flex gap-5">
-        {user !== null ? (
+      <SidebarFooter className="flex gap-5 ">
+        {user !== null && (
           <div className="flex flex-col gap-2">
             <div className="flex gap-1 items-center w-full overflow-hidden">
               <img
@@ -93,32 +93,35 @@ export async function AppSidebar() {
               />
               <span className="text-md flex-1">{user.email}</span>
             </div>
-            <div className="flex justify-between items-center gap-2">
-              <Dialog
-                className="flex gap-2 text-s font-semibold border-2 border-solid border-violet-500 px-2 py-1 rounded-sm hover:bg-violet-400 hover:text-white w-max"
-                children={
-                  <form action={signOut}>
-                    <Button type="submit" variant="destructive">
-                      <LogOut />
-                      Log Out
-                    </Button>
-                  </form>
-                }
-                trigger="Log out"
-                title="Are you sure you want to Log Out?"
-                description=""
-              />
-              <ThemeSwitch theme={theme?.value ?? "light"} />
-            </div>
           </div>
-        ) : (
-          <a href="/login">
-            <button className="flex gap-2 text-s font-semibold border-2 border-solid border-violet-500 px-2 py-1 rounded-sm hover:bg-violet-400 hover:text-white">
-              <LogIn />
-              Log In
-            </button>
-          </a>
         )}
+
+        <div className="flex justify-between items-center gap-2">
+          {user !== null ? (
+            <Dialog
+              className="flex gap-2 text-s font-semibold border-2 border-solid border-violet-500 px-2 py-1 rounded-sm hover:bg-violet-400 hover:text-white w-max"
+              children={
+                <form action={signOut}>
+                  <Button type="submit" variant="destructive">
+                    <LogOut />
+                    Log Out
+                  </Button>
+                </form>
+              }
+              trigger="Log out"
+              title="Are you sure you want to Log Out?"
+              description=""
+            />
+          ) : (
+            <a href="/login">
+              <button className="flex gap-2 text-s font-semibold border-2 border-solid border-violet-500 px-2 py-1 rounded-sm hover:bg-violet-400 hover:text-white">
+                <LogIn />
+                Log In
+              </button>
+            </a>
+          )}
+          <ThemeSwitch theme={theme?.value ?? "light"} />
+        </div>
       </SidebarFooter>
     </Sidebar>
   )

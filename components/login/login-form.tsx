@@ -23,8 +23,8 @@ export function LoginForm({
   const [isSignUp, setIsSignup] = useState(false)
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden relative">
+    <div className={cn("flex flex-col gap-6 ", className)} {...props}>
+      <Card className="overflow-hidden relative dark:border-solid dark:border-[1px] dark:border-white">
         <a href="/" className="absolute right-2 top-2 z-30 bg-s">
           <button className="text-red-500 bg-white p-2 rounded-lg  hover:bg-red-500 hover:text-white hover:border-2 hover:border-solid hover:border-white">
             <CircleX className="scale-125 " />
@@ -32,7 +32,7 @@ export function LoginForm({
         </a>
         <CardContent className="grid p-0 md:grid-cols-2 h-[35em] relative ">
           <form
-            className={`p-6 md:p-8 transition-transform duration-1000 bg-white content-center ${
+            className={`dark:bg-gray-800 p-6 md:p-8 transition-transform duration-1000 bg-white content-center ${
               isSignUp
                 ? "absolute z-0 translate-x-[100%] w-[50%] h-full"
                 : "z-10"
@@ -45,7 +45,6 @@ export function LoginForm({
                   Login to your account
                 </p>
               </div>
-
               {pending ? (
                 "Loading..."
               ) : error ? (
@@ -58,6 +57,7 @@ export function LoginForm({
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
+                  className="dark:bg-gray-900"
                   id="email"
                   name="email"
                   type="email"
@@ -75,13 +75,19 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" name="password" type="password" required />
+                <Input
+                  className="dark:bg-gray-900"
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                />
               </div>
               <Button type="submit" className="w-full" formAction={action}>
                 Login
               </Button>
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                <span className="relative z-10 bg-background px-2 text-muted-foreground dark:bg-gray-800">
                   Or continue with
                 </span>
               </div>
@@ -89,11 +95,11 @@ export function LoginForm({
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full"
+                  className="w-full "
                   onClick={signInWithGithub}
                 >
                   <svg
-                    className="scale-[1.5]"
+                    className="scale-[1.5] dark:fill-white"
                     xmlns="http://www.w3.org/2000/svg"
                     x="0px"
                     y="0px"
@@ -131,7 +137,7 @@ export function LoginForm({
                   onClick={signInWithFacebook}
                 >
                   <svg
-                    className="scale-[1.5]"
+                    className="scale-[1.5] dark:fill-white"
                     xmlns="http://www.w3.org/2000/svg"
                     x="0px"
                     y="0px"
@@ -148,7 +154,6 @@ export function LoginForm({
                 Don&apos;t have an account?{" "}
                 <button
                   className="underline underline-offset-4"
-                  // formAction={signup}
                   type="button"
                   onClick={() => setIsSignup(true)}
                 >
@@ -166,7 +171,7 @@ export function LoginForm({
             <img
               src="/bg.jpg"
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              className="absolute inset-0 h-full w-full object-cover "
             />
           </div>
         </CardContent>

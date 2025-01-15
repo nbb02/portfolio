@@ -8,7 +8,7 @@ import {
   updateProfile,
 } from "./actions"
 import { type InferSelectModel } from "drizzle-orm"
-import { CircleX, Edit, Save } from "lucide-react"
+import { CircleX, Cross, Edit, Plus, Save, X } from "lucide-react"
 import Link from "next/link"
 import Project from "@/components/project"
 import { profiles } from "@/src/db/schema"
@@ -119,8 +119,8 @@ export default function Portfolio({
               action={changeCover}
               className="flex items-center gap-1 absolute bottom-1 right-1 bg-white px-2 rounded-lg py-1 border-2 border-solid border-green-500 text-green-500 font-bold z-50 text-sm hover:bg-green-500 hover:text-white"
             >
-              <label className="text-center flex gap-1 items-center justify-center">
-                Edit <Edit />
+              <label className="text-center flex gap-1 items-center justify-center dark:text-green-500">
+                Edit <Edit className="dark:text-green-500" />
                 <input
                   type="file"
                   name="cover_photo"
@@ -149,8 +149,8 @@ export default function Portfolio({
               action={changeAvatar}
               className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-white px-2 rounded-lg py-1 border-t-2 border-solid border-green-500 text-green-500 font-bold z-50 text-sm hover:bg-green-500 hover:text-white w-full"
             >
-              <label className="text-center flex gap-1 items-center justify-center">
-                Edit <Edit />
+              <label className="text-center flex gap-1 items-center justify-center dark:text-green-500">
+                Edit <Edit className="dark:text-green-500" />
                 <input
                   type="file"
                   name="avatar_image"
@@ -212,6 +212,7 @@ export default function Portfolio({
             <label>About</label>
             <textarea
               name="about"
+              className="h-[10em]"
               defaultValue={about ?? ""}
               required
             ></textarea>
@@ -250,12 +251,13 @@ export default function Portfolio({
           <p className="text-4xl font-bold">
             {last_name}, {first_name} {middle_name}
           </p>
-          <p className="text-lg">{email}</p>
           <p className="text-lg">{role}</p>
-          <p className="text-lg">{about}</p>
+          <p className="text-lg">{email}</p>
+
           <p className="text-lg">
             {city}, {province}, {country}
           </p>
+          <pre className="text-lg font-sans p-1">{about}</pre>
         </main>
       )}
       <hr className="my-10 w-[90%] mx-auto" />
@@ -275,7 +277,7 @@ export default function Portfolio({
               onClick={() => setEditing(true)}
             >
               <span className="bg-blur"></span>
-              <Edit className="text-green-800" />
+              <Edit className="text-green-800 " />
             </button>
           ))}
         <Techs
@@ -415,36 +417,79 @@ function TechForm({
   }
 }) {
   const [state, action, pending] = useActionState(add_technology, null)
+  const [techs, setTechs] = useState([data ?? { name: "", img_url: "" }])
 
   useEffect(() => {
     if (state?.success) {
       close()
     }
   }, [state])
+
+  function handleChange(index: number, field: string, value: string) {
+    setTechs((prevTechs) =>
+      prevTechs.map((tech, i) =>
+        i === index ? { ...tech, [field]: value } : tech
+      )
+    )
+  }
+
   return (
     <form
       action={action}
-      className="fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] p-10 border-2 border-solid border-violet-500 flex flex-col gap-2 !bg-opacity-50 rounded-md overflow-hidden shadow-lg shadow-gray-400 z-50"
+      className="fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] p-10 border-2 border-solid border-violet-500 flex flex-col gap-2 !bg-opacity-90 rounded-md overflow-auto shadow-lg shadow-gray-400 z-50 max-h-[80%] bg-white dark:dark:bg-gray-700 "
     >
-      <div className="absolute h-full w-full top-0 left-0 z-[-1] bg-white dark:dark:bg-gray-700 bg-opacity-30 backdrop-blur-sm "></div>
       <h1 className="text-lg font-bold">{id ? "Add" : "Update"} Technology</h1>
       <input type="hidden" name="user_id" value={profile_id} />
       {id && <input type="hidden" name="id" value={id} />}
       {state?.error && <p>{state.message}</p>}
-      <label htmlFor="">Technology Name</label>
-      <input
-        className="border-2 border-solid border-violet-500 p-1 px-2 rounded-md dark:bg-gray-700 "
-        type="text"
-        name="name"
-        defaultValue={data?.name}
-      />
-      <label htmlFor="">Image Url</label>
-      <input
-        className="border-2 border-solid border-violet-500 p-1 px-2 rounded-md dark:bg-gray-700 "
-        type="text"
-        name="img_url"
-        defaultValue={data?.img_url}
-      />
+      <div className="flex flex-wrap gap-2">
+        {techs.map((tech, index) => {
+          return (
+            <div
+              key={index}
+              className="relative flex flex-col border-2 border-solid border-gray-400 p-2 rounded-sm "
+            >
+              <label htmlFor="">Name</label>
+              <input
+                className="border-2 border-solid border-violet-500 p-1 px-2 rounded-md dark:bg-gray-700 "
+                type="text"
+                name={"name" + index}
+                defaultValue={tech.name}
+                onChange={(e) => handleChange(index, "name", e.target.value)}
+              />
+              <label htmlFor="">Image Url</label>
+              <input
+                className="border-2 border-solid border-violet-500 p-1 px-2 rounded-md dark:bg-gray-700 "
+                type="text"
+                name={"img_url" + index}
+                defaultValue={tech.img_url}
+                onChange={(e) => handleChange(index, "img_url", e.target.value)}
+              />
+              {!id && (
+                <button
+                  className="text-red-500 absolute top-1 right-1"
+                  type="button"
+                  onClick={() => {
+                    setTechs((prevTechs) =>
+                      prevTechs.filter((_, i) => i !== index)
+                    )
+                  }}
+                >
+                  <X />
+                </button>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      {!id && (
+        <button
+          className="flex gap-1 px-2 py-1 border-2 border-solid w-max ml-auto border-blue-500 rounded-md text-blue-500 font-bold hover:bg-blue-500 hover:text-white"
+          onClick={() => setTechs([...techs, { name: "", img_url: "" }])}
+        >
+          Add <Plus />
+        </button>
+      )}
       <footer className="flex justify-between pt-10">
         <button
           className="border-solid border-2 border-red-500 px-2 rounded-md text-red-500 font-bold hover:bg-red-500 hover:text-white"
@@ -453,11 +498,13 @@ function TechForm({
           Close
         </button>
         <button
-          className="border-solid border-2 border-green-500 px-2 rounded-md text-green-500 font-bold hover:bg-green-500 hover:text-white"
+          className="border-solid border-2 border-green-500 px-2 rounded-md text-green-500 font-bold hover:bg-green-500 hover:text-white disabled:grayscale"
           type="submit"
-          disabled={pending}
+          disabled={
+            pending || techs?.some((tech) => !tech.name || !tech.img_url)
+          }
         >
-          {id ? "Update" : "Add"}
+          {id ? "Update" : "Submit"}
         </button>
       </footer>
     </form>

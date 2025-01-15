@@ -13,14 +13,22 @@ type Response = {
 
 async function add_technology(_: any, formData: FormData): Promise<Response> {
   try {
-    const data = {
-      user_id: Number(formData.get("user_id")),
-      name: formData.get("name") as string,
-      img_url: formData.get("img_url") as string,
+    const id = formData.get("id")
+    const user_id = Number(formData.get("user_id"))
+    if (!user_id) {
+      return {
+        error: true,
+        message: "User ID is Required",
+      }
     }
 
-    const id = formData.get("id")
     if (id) {
+      const data = {
+        user_id,
+        name: formData.get("name0") as string,
+        img_url: formData.get("img_url0") as string,
+      }
+
       await db
         .update(technologies)
         .set(data)
@@ -28,14 +36,29 @@ async function add_technology(_: any, formData: FormData): Promise<Response> {
 
       revalidatePath("/profile")
     } else {
-      if (!data.name || !data.img_url) {
-        return {
-          error: true,
-          message: "Name and Image is Required",
+      const inputValues: {
+        name: string
+        img_url: string
+        user_id: number
+      }[] = []
+
+      for (const [name, value] of formData.entries()) {
+        if (name.startsWith("name")) {
+          const index = name.slice(4)
+          const img_url = formData.get("img_url" + index) as string
+
+          if (!value || !img_url) {
+            return {
+              error: true,
+              message: "Name and Image is Required",
+            }
+          }
+
+          inputValues.push({ name: value as string, img_url: img_url, user_id })
         }
       }
 
-      await db.insert(technologies).values(data)
+      await db.insert(technologies).values(inputValues)
 
       revalidatePath("/profile")
     }

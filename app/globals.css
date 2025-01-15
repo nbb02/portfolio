@@ -170,7 +170,7 @@ body {
 
 input,
 textarea {
-  @apply dark:bg-gray-800;
+  @apply dark:bg-gray-800 dark:text-white;
 }
 
 label {

@@ -15,7 +15,7 @@ export default function Form({
   const [error, action, pending] = useActionState(create_profile, null)
 
   return (
-    <main className="flex justify-center">
+    <main className="flex justify-center ">
       <form
         className={`p-5 flex flex-col max-w-[50em] ${pending && "opacity-75"}`}
         action={action}
@@ -28,10 +28,10 @@ export default function Form({
         {error && <div className="text-red-500 font-extrabold">{error}</div>}
         <div className="space-y-12">
           <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base/7 font-semibold text-gray-900">
+            <h2 className="text-base/7 font-semibold text-gray-900 dark:text-gray-300">
               Personal Information
             </h2>
-            <p className="mt-1 text-sm/6 text-gray-600">
+            <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-300">
               Use a permanent address where you can receive mail.
             </p>
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-6">
@@ -89,7 +89,7 @@ export default function Form({
               <div className="sm:col-span-4">
                 <label
                   htmlFor="email"
-                  className="block text-sm/6 font-medium text-gray-900"
+                  className="block text-sm/6 font-medium text-gray-900 dark:text-gray-300"
                 >
                   Email address
                 </label>
@@ -159,8 +159,10 @@ export default function Form({
             </div>
           </div>
           <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base/7 font-semibold text-gray-900">Profile</h2>
-            <p className="mt-1 text-sm/6 text-gray-600">
+            <h2 className="text-base/7 font-semibold text-gray-900 dark:text-gray-300">
+              Profile
+            </h2>
+            <p className="mt-1 text-sm/6 text-gray-600 dark:text-gray-300">
               This information will be displayed publicly so be careful what you
               share.
             </p>
@@ -173,7 +175,7 @@ export default function Form({
                   Username
                 </label>
                 <div className="mt-2">
-                  <div className="flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+                  <div className="flex items-center rounded-md bg-white dark:bg-gray-800 pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
                     <input
                       type="text"
                       name="username"
@@ -191,7 +193,7 @@ export default function Form({
                   Role / Position / Title
                 </label>
                 <div className="mt-2">
-                  <div className="flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+                  <div className="flex items-center rounded-md dark:bg-gray-800 bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
                     <input
                       type="text"
                       name="role"
@@ -216,7 +218,7 @@ export default function Form({
                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                   ></textarea>
                 </div>
-                <p className="mt-3 text-sm/6 text-gray-600">
+                <p className="mt-3 text-sm/6 text-gray-600 dark:text-gray-300">
                   Write a few sentences about yourself.
                 </p>
               </div>
@@ -292,7 +294,7 @@ export default function Form({
                 >
                   Cover photo
                 </label>
-                <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 relative h-[15em]">
+                <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 relative h-[15em] dark:border-white">
                   {imgPreview && (
                     <img
                       src={
@@ -324,7 +326,8 @@ export default function Form({
                     <div className="mt-4 flex text-sm/6 text-gray-600">
                       <label
                         htmlFor="cover_photo"
-                        className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500 px-1"
+                        className="relative cursor-pointer rounded-md bg-white  text-black dark:text-white dark:bg-gray-800 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500 px-1
+                        dark:hover:bg-gray-700 "
                       >
                         <span>Upload a file</span>
                         <input

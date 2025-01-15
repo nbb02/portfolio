@@ -8,12 +8,20 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Modal from "@/components/modal"
 import { cn } from "@/lib/utils"
 
-export default function ProjectItem({ project }: { project: Project }) {
+export default function ProjectItem({
+  project,
+  canEdit,
+}: {
+  project: Project
+  canEdit: boolean
+}) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const media = project.media as MediaItem[]
 
-  const [editing, setEditing] = useState(!!searchParams.get("edit"))
+  const [editing, setEditing] = useState(
+    canEdit ? !!searchParams.get("edit") : false
+  )
   const [adding, setAdding] = useState(false)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [descriptionChange, setDescriptionChange] = useState<{
@@ -88,6 +96,8 @@ export default function ProjectItem({ project }: { project: Project }) {
     }
   }
 
+  console.log(canEdit)
+
   return (
     <div className="p-5 relative">
       <a
@@ -96,7 +106,7 @@ export default function ProjectItem({ project }: { project: Project }) {
       >
         <ArrowLeft />
       </a>
-      {!editing && (
+      {canEdit && !editing && (
         <button
           onClick={() => setEditing(!editing)}
           className="absolute right-5 top-5 border-2 border-solid border-green-500 text-green-500 py-1 px-2 rounded-md hover:bg-green-500 hover:text-white"
