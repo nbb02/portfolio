@@ -1,18 +1,15 @@
-import { db } from "@/src"
-import { profiles } from "@/src/db/schema"
-import { createClient } from "@/utils/supabase/server"
 import Image from "next/image"
 import Link from "next/link"
 
 export default async function Page() {
-  const all_profiles = await db.select().from(profiles)
+  // const all_profiles = await db.select().from(profiles)
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // const supabase = await createClient()
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser()
 
-  const hasProfile = all_profiles?.find((item) => item.user_id === user?.id)
+  // const hasProfile = all_profiles?.find((item) => item.user_id === user?.id)
 
   return (
     <div className="flex flex-col min-h-screen  w-full">
@@ -21,7 +18,7 @@ export default async function Page() {
           className="flex-1 flex gap-2 py-2 px-5 flex-wrap content-center 
       justify-center"
         >
-          {!hasProfile && user && (
+          {/* {!hasProfile && user && (
             <a
               href="/create-profile"
               className="w-full flex-none flex justify-center"
@@ -36,7 +33,7 @@ export default async function Page() {
           )}
           {all_profiles.map((userData) => (
             <UserBox key={userData.id} userData={userData} />
-          ))}
+          ))} */}
         </main>
       </main>
     </div>

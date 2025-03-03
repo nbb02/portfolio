@@ -1,4 +1,4 @@
-import { Home, Inbox, LogIn, LogOut } from "lucide-react"
+import { Home, Inbox, LogIn, LogOut, User } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -9,10 +9,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import getUser from "@/app/auth"
-import { signOut } from "@/app/login/actions"
-import Dialog from "./dialog"
-import { Button } from "./ui/button"
+// import getUser from "@/app/auth"
+// import { signOut } from "@/app/login/actions"
+// import Dialog from "./dialog"
+// import { Button } from "./ui/button"
 import { cookies, headers } from "next/headers"
 import ThemeSwitch from "./theme-switch"
 import { cn } from "@/lib/utils"
@@ -28,10 +28,15 @@ const items = [
     url: "/projects",
     icon: Inbox,
   },
+  {
+    title: "About",
+    url: "/about",
+    icon: User,
+  },
 ]
 
 export async function AppSidebar() {
-  const user = await getUser()
+  // const user = await getUser()
 
   const cookieStore = await cookies()
 
@@ -83,7 +88,7 @@ export async function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="flex gap-5 ">
-        {user !== null && (
+        {/* {user !== null && (
           <div className="flex flex-col gap-2">
             <div className="flex gap-1 items-center w-full overflow-hidden">
               <img
@@ -94,10 +99,10 @@ export async function AppSidebar() {
               <span className="text-md flex-1">{user.email}</span>
             </div>
           </div>
-        )}
+        )} */}
 
         <div className="flex justify-between items-center gap-2">
-          {user !== null ? (
+          {/* {user !== null ? (
             <Dialog
               className="flex gap-2 text-s font-semibold border-2 border-solid border-violet-500 px-2 py-1 rounded-sm hover:bg-violet-400 hover:text-white w-max"
               children={
@@ -119,7 +124,7 @@ export async function AppSidebar() {
                 Log In
               </button>
             </a>
-          )}
+          )} */}
           <ThemeSwitch theme={theme?.value ?? "light"} />
         </div>
       </SidebarFooter>

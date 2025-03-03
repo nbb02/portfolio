@@ -1,10 +1,9 @@
 import Project from "@/components/project"
-import { db } from "@/src"
-import { projects } from "@/src/db/schema"
 import React from "react"
 
 export default async function Page() {
-  const allProjects: Project[] = await db.select().from(projects)
+  // const allProjects: Project[] = await db.select().from(projects)
+  const allProjects: Project[] = []
 
   return (
     <div className="mt-6 p-10">
