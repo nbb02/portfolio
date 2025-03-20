@@ -4,32 +4,53 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  login,
-  signInWithFacebook,
-  signInWithGithub,
-  signInWithGoogle,
-} from "@/app/login/actions"
-import { useActionState, useState } from "react"
+import { useActionState, useContext, useEffect, useRef, useState } from "react"
 import SignUp from "./signup"
 import { CircleX } from "lucide-react"
+import Link from "next/link"
+import api, { setAuthToken } from "@/config/axios"
+import { AppContext } from "@/app/app-provider"
+import { useRouter } from "next/navigation"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const [error, action, pending] = useActionState(login, null)
+  const { user } = useContext(AppContext)
 
   const [isSignUp, setIsSignup] = useState(false)
+  const router = useRouter()
+
+  const formRef = useRef<HTMLFormElement>(null)
+
+  async function login() {
+    const { data } = await api.post(
+      "/auth/login",
+      new FormData(formRef.current)
+    )
+
+    localStorage.setItem("token", data)
+
+    router.push("/")
+
+    setAuthToken(data)
+  }
+
+  useEffect(() => {
+    if (user) {
+      router.push("/")
+    }
+  }, [user])
 
   return (
     <div className={cn("flex flex-col gap-6 ", className)} {...props}>
       <Card className="overflow-hidden relative dark:border-solid dark:border-[1px] dark:border-white">
-        <a href="/" className="absolute right-2 top-2 z-30 bg-s">
+        <Link href="/" className="absolute right-2 top-2 z-30 bg-s">
           <button className="text-red-500 bg-white p-2 rounded-lg  hover:bg-red-500 hover:text-white hover:border-2 hover:border-solid hover:border-white">
             <CircleX className="scale-125 " />
           </button>
-        </a>
+        </Link>
         <CardContent className="grid p-0 md:grid-cols-2 h-[35em] relative ">
           <form
             className={`dark:bg-gray-800 p-6 md:p-8 transition-transform duration-1000 bg-white content-center ${
@@ -37,6 +58,7 @@ export function LoginForm({
                 ? "absolute z-0 translate-x-[100%] w-[50%] h-full"
                 : "z-10"
             }`}
+            ref={formRef}
           >
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
@@ -91,7 +113,7 @@ export function LoginForm({
                   Or continue with
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              {/* <div className="grid grid-cols-3 gap-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -149,7 +171,7 @@ export function LoginForm({
                   </svg>
                   <span className="sr-only">Login with Facebook</span>
                 </Button>
-              </div>
+              </div> */}
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
                 <button

@@ -1,4 +1,5 @@
-import { Home, Inbox, LogIn, LogOut, User } from "lucide-react"
+"use client"
+import { Globe, Home, Inbox, LogIn, User } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -13,9 +14,14 @@ import {
 // import { signOut } from "@/app/login/actions"
 // import Dialog from "./dialog"
 // import { Button } from "./ui/button"
-import { cookies, headers } from "next/headers"
+import Cookies from "js-cookie"
 import ThemeSwitch from "./theme-switch"
 import { cn } from "@/lib/utils"
+import { useContext, useEffect } from "react"
+import { AppContext } from "@/app/app-provider"
+import { usePathname } from "next/navigation"
+import api, { setAuthToken } from "@/config/axios"
+import Dialog from "./dialog"
 
 const items = [
   {
@@ -33,17 +39,35 @@ const items = [
     url: "/about",
     icon: User,
   },
+  {
+    title: "Global Chat",
+    url: "/global-chat",
+    icon: Globe,
+  },
 ]
 
-export async function AppSidebar() {
-  // const user = await getUser()
+export function AppSidebar() {
+  const { user, setUser } = useContext(AppContext)
 
-  const cookieStore = await cookies()
+  const path = usePathname()
+  const theme = Cookies.get("theme")
 
-  const theme = cookieStore.get("theme")
+  useEffect(() => {
+    async function getUser() {
+      const token = localStorage.getItem("token")
 
-  const headersList = await headers()
-  const path = headersList.get("x-pathname")
+      if (token) {
+        setAuthToken(token)
+      } else {
+        return
+      }
+
+      const { data } = await api.get("/user")
+      setUser(data)
+    }
+
+    getUser()
+  }, [])
 
   return (
     <Sidebar>
@@ -88,31 +112,31 @@ export async function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="flex gap-5 ">
-        {/* {user !== null && (
+        {user !== null && (
           <div className="flex flex-col gap-2">
             <div className="flex gap-1 items-center w-full overflow-hidden">
-              <img
+              {/* <img
                 className="h-10 w-10 rounded-md"
                 src={user.user_metadata.avatar_url}
                 alt="avatar"
-              />
+              /> */}
               <span className="text-md flex-1">{user.email}</span>
             </div>
           </div>
-        )} */}
+        )}
 
         <div className="flex justify-between items-center gap-2">
-          {/* {user !== null ? (
+          {user !== null ? (
             <Dialog
               className="flex gap-2 text-s font-semibold border-2 border-solid border-violet-500 px-2 py-1 rounded-sm hover:bg-violet-400 hover:text-white w-max"
-              children={
-                <form action={signOut}>
-                  <Button type="submit" variant="destructive">
-                    <LogOut />
-                    Log Out
-                  </Button>
-                </form>
-              }
+              // children={
+              //   <form action={signOut}>
+              //     <Button type="submit" variant="destructive">
+              //       <LogOut />
+              //       Log Out
+              //     </Button>
+              //   </form>
+              // }
               trigger="Log out"
               title="Are you sure you want to Log Out?"
               description=""
@@ -124,7 +148,7 @@ export async function AppSidebar() {
                 Log In
               </button>
             </a>
-          )} */}
+          )}
           <ThemeSwitch theme={theme?.value ?? "light"} />
         </div>
       </SidebarFooter>

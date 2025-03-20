@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Roboto } from "next/font/google"
 import "./globals.css"
 import { cookies } from "next/headers"
+import AppProvider from "./app-provider"
 
 const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -20,7 +21,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={theme?.value === "dark" ? "dark" : ""}>
-      <body className={`${roboto.className} antialiased`}>{children}</body>
+      <body className={`${roboto.className} antialiased`}>
+        <AppProvider>{children}</AppProvider>
+      </body>
     </html>
   )
 }

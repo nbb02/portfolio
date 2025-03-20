@@ -2,7 +2,8 @@ import { useActionState, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { signup } from "@/app/login/actions"
+import api from "@/config/axios"
+import { toast } from "sonner"
 
 type SignUpProps = {
   isSignUp: boolean
@@ -11,6 +12,15 @@ type SignUpProps = {
 
 export default function SignUp({ isSignUp, setIsSignup }: SignUpProps) {
   const [error, action, pending] = useActionState(signup, null)
+
+  async function signup() {
+    try {
+      const data = await api.post("/register", {})
+      console.log(data)
+    } catch (error) {
+      toast.error(error?.message)
+    }
+  }
 
   return (
     <form
